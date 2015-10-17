@@ -162,7 +162,19 @@ a.button span {
   background: transparent url(../images/octocat-icon.png) 12px 50% no-repeat;
 }
 #view-on-github {
-  margin-right: 0;
+  margin-right: 2px;
+}
+#view-on-facebook span {
+	background: transparent url(../images/facebook-icon.png) 12px 50% no-repeat;
+}
+#view-on-facebook {
+	margin-right: 2px;
+}
+#view-on-twitter span {
+	background: transparent url(../images/twitter-icon.png) 12px 50% no-repeat;
+}
+#view-on-twitter {
+	margin-right: 2px;
 }
 
 code, pre {
