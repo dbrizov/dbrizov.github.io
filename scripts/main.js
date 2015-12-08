@@ -4,13 +4,15 @@
 	}
 	
 	function loadAbout() {
-		loadContent("./html/about.html", "#main_content");
+		loadContent("https://raw.githubusercontent.com/dbrizov/dbrizov.github.io/master/html/about.html", "#main_content");
 	}
 	
 	function loadProjects() {
-		loadContent("./html/projects.html", "#main_content");
+		loadContent("https://raw.githubusercontent.com/dbrizov/dbrizov.github.io/master/html/projects.html", "#main_content");
 	}
 	
-	$("#btn-about").click(loadAbout);	
+	$("#btn-about").click(loadAbout);
 	$("#btn-projects").click(loadProjects);
+	
+	loadAbout();
 }());
