@@ -182,6 +182,12 @@ a.button span {
 #view-on-linkedin {
 	margin: 1px;
 }
+#view-on-instagram span {
+	background: transparent url(../images/instagram-icon.png) 12px 50% no-repeat;
+}
+#view-on-instagram {
+	margin: 1px;
+}
 
 code, pre {
   margin-bottom: 30px;
