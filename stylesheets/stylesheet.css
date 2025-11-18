@@ -188,6 +188,12 @@ a.button span {
 #view-on-instagram {
 	margin: 1px;
 }
+#view-on-wordpress span {
+	background: transparent url(../images/wordpress-icon.png) 12px 50% no-repeat;
+}
+#view-on-wordpress {
+	margin: 1px;
+}
 
 code, pre {
   margin-bottom: 30px;
