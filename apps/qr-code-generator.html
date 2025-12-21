@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>QR Code Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- QR Code Styling library -->
+  <script src="qr-code-styling.js"></script>
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      background: #020617;
+      padding: 24px;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      margin-top: 14px;
+      font-size: 0.9rem;
+      color: #cbd5f5;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      margin-top: 6px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+    }
+
+    input,
+    select {
+      background: #020617;
+      color: white;
+      border: 1px solid #1e293b;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .qr-box {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.75rem;
+      margin-top: 12px;
+      color: #64748b;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h1>QR Code Generator</h1>
+
+    <label>Text / URL</label>
+    <input id="text" placeholder="https://example.com">
+
+    <label>Size (px)</label>
+    <input id="size" type="number" value="300" min="300" max="800">
+
+    <label>Dot Style</label>
+    <select id="style">
+      <option value="rounded">Rounded</option>
+      <option value="dots">Dots</option>
+      <option value="classy">Classy</option>
+      <option value="square">Square</option>
+    </select>
+
+    <label>Gradient Colors</label>
+    <div class="row">
+      <input id="color1" type="color" value="#2563eb">
+      <input id="color2" type="color" value="#9333ea">
+    </div>
+
+    <label>Center Logo (optional)</label>
+    <input id="logo" type="file" accept="image/*">
+
+    <button onclick="generateQR()">Generate QR</button>
+
+    <div class="qr-box" id="qr"></div>
+
+    <button onclick="download()">Download PNG</button>
+
+    <footer>
+      Client-side only • GitHub Pages ready
+    </footer>
+  </div>
+
+  <script>
+    const qrContainer = document.getElementById("qr");
+
+    const qrCode = new QRCodeStyling({
+      width: 280,
+      height: 280,
+      data: "",
+      dotsOptions: {
+        type: "rounded",
+        gradient: {
+          type: "linear",
+          rotation: 0,
+          colorStops: [
+            { offset: 0, color: "#2563eb" },
+            { offset: 1, color: "#9333ea" }
+          ]
+        }
+      },
+      backgroundOptions: {
+        color: "#ffffff"
+      },
+      imageOptions: {
+        crossOrigin: "anonymous",
+        margin: 6
+      }
+    });
+
+    qrCode.append(qrContainer);
+
+    function generateQR() {
+      const text = document.getElementById("text").value;
+      if (!text) return;
+
+      const size = parseInt(document.getElementById("size").value);
+      const style = document.getElementById("style").value;
+      const c1 = document.getElementById("color1").value;
+      const c2 = document.getElementById("color2").value;
+      const logoInput = document.getElementById("logo");
+
+      const options = {
+        width: size,
+        height: size,
+        data: text,
+        dotsOptions: {
+          type: style,
+          gradient: {
+            type: "linear",
+            rotation: 0,
+            colorStops: [
+              { offset: 0, color: c1 },
+              { offset: 1, color: c2 }
+            ]
+          }
+        }
+      };
+
+      if (logoInput.files.length > 0) {
+        options.image = URL.createObjectURL(logoInput.files[0]);
+      } else {
+        options.image = undefined;
+      }
+
+      qrCode.update(options);
+    }
+
+    function download() {
+      qrCode.download({
+        name: "qr-code",
+        extension: "png"
+      });
+    }
+  </script>
+
+</body>
+
+</html>
