@@ -123,7 +123,10 @@
 
     <div class="qr-box" id="qr"></div>
 
-    <button onclick="download()">Download PNG</button>
+    <div class="row">
+      <button onclick="downloadPNG()">Download PNG</button>
+      <button onclick="downloadSVG()">Download SVG</button>
+    </div>
 
     <footer>
       Client-side only • GitHub Pages ready
@@ -195,10 +198,17 @@
       qrCode.update(options);
     }
 
-    function download() {
+    function downloadPNG() {
       qrCode.download({
         name: "qr-code",
         extension: "png"
+      });
+    }
+
+    function downloadSVG() {
+      qrCode.download({
+        name: "qr-code",
+        extension: "svg"
       });
     }
   </script>
