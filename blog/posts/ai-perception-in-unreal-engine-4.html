@@ -5,27 +5,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Perception in Unreal Engine 4 - How to Setup — Denis Rizov</title>
-  <link rel="icon" type="image/png" href="../../../images/icon.png">
+  <link rel="icon" type="image/png" href="../../images/icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="../../../css/style.css">
+  <link rel="stylesheet" href="../../css/style.css">
 </head>
 
 <body>
   <div class="bg-grid"></div>
   <nav class="topnav">
     <div class="topnav-inner">
-      <a href="../../../index.html" class="brand"><span class="brand-bracket">&lt;blog&gt;</span><span
+      <a href="../../index.html" class="brand"><span class="brand-bracket">&lt;blog&gt;</span><span
           class="brand-name">denis.rizov</span><span class="brand-bracket">&lt;/blog&gt;</span></a>
     </div>
   </nav>
   <main>
     <article class="post">
       <header class="post-header">
-        <p class="post-date"><a href="../../index.html" class="back-link">&larr; back</a> <time
+        <p class="post-date"><a href="../index.html" class="back-link">&larr; back</a> <time
             datetime="2017-05-08">2017-05-08</time></p>
         <h1 class="post-title">AI Perception in Unreal Engine 4 - How to Setup</h1>
         <p class="post-meta"><span class="tag">AI</span> <span class="tag">C++</span> <span class="tag">UE4</span></p>
@@ -55,8 +55,8 @@
         <p>We create a default <strong>AIController</strong>, and the only component we add to it is an
           <strong>AIPerception</strong> Component. We are going to configure it only for sight sense like so.</p>
 
-        <img src="../../images/2017/05/enemy_ai_controller.png" alt="AEnemyAIController">
-        <img src="../../images/2017/05/ai_perception_component.png" alt="UAIPerceptionComponentSetup">
+        <img src="../images/2017/05/enemy_ai_controller.png" alt="AEnemyAIController">
+        <img src="../images/2017/05/ai_perception_component.png" alt="UAIPerceptionComponentSetup">
 
         <p>I left everything to the default values. As you can see it's setup only to detect enemies.</p>
 
@@ -65,16 +65,16 @@
         <p>The <strong>AIPerceptionStimuliSourceComponent</strong> must be added to any actors that we want to be
           stimuli sources for the <strong>AIPerceptionComponent</strong>. In our case we add it to our character.</p>
 
-        <img src="../../images/2017/05/knight_character.png" alt="AKnightCharacter">
-        <img src="../../images/2017/05/ai_perception_stimuli_source_component1.png"
+        <img src="../images/2017/05/knight_character.png" alt="AKnightCharacter">
+        <img src="../images/2017/05/ai_perception_stimuli_source_component1.png"
           alt="UAIPerceptionStimuliSourceComponent">
 
         <h3>Is it working?</h3>
 
         <p>Lets add an event to the EnemyAIController Blueprint to see if it's working.</p>
 
-        <img src="../../images/2017/05/enemy_ai_blueprint.png" alt="BP_EnemyAIController">
-        <img src="../../images/2017/05/perception_not_working.gif" alt="PerceptionNotWorking">
+        <img src="../images/2017/05/enemy_ai_blueprint.png" alt="BP_EnemyAIController">
+        <img src="../images/2017/05/perception_not_working.gif" alt="PerceptionNotWorking">
 
         <p>Well, the &ldquo;Found&rdquo; message is not printed so it's not working. Well I can actually say that it
           works properly. The message is not being printed on screen because the enemy is not considering us as an
@@ -135,7 +135,7 @@ FGenericTeamId AKnightCharacter::GetGenericTeamId() const
 
         <p>Now if we test it again, the enemy is considering us as an enemy and is seeing us.</p>
 
-        <img src="../../images/2017/05/perception_working.gif" alt="PerceptionWorking">
+        <img src="../images/2017/05/perception_working.gif" alt="PerceptionWorking">
 
         <p>The reason our character is &ldquo;Found&rdquo; if we exit the field of view of the enemy is that the
           perception is updated when we exit the sight of the enemy too.</p>
@@ -147,7 +147,7 @@ FGenericTeamId AKnightCharacter::GetGenericTeamId() const
       <p class="comment">// <a href="https://github.com/dbrizov/dbrizov.github.io" target="_blank" rel="noopener">view
           source</a></p>
       <div class="footer-links">
-        <a href="../../../index.html">home</a>
+        <a href="../../index.html">home</a>
       </div>
     </div>
   </footer>
