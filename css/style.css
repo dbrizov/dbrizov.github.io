@@ -168,7 +168,7 @@ main {
   text-align: center;
   font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--text-mute);
+  color: var(--accent);
   pointer-events: none;
 }
 .terminal-body {
