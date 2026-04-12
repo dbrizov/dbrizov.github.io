@@ -1,48 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dynamic Stack Implementation - C# — Denis Rizov</title>
-<link rel="icon" type="image/png" href="../../../images/icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../../css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Stack Implementation - C# — Denis Rizov</title>
+    <link rel="icon" type="image/png" href="../../../images/icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../../css/style.css">
 </head>
+
 <body>
-<div class="bg-grid"></div>
-<nav class="topnav">
-  <div class="topnav-inner">
-    <a href="../../../index.html" class="brand"><span class="brand-bracket">&lt;</span><span class="brand-name">denis.rizov</span><span class="brand-bracket">/&gt;</span></a>
-    <ul class="nav-links">
-      <li><a href="../../../index.html#about">about</a></li>
-      <li><a href="../../../index.html#games">games</a></li>
-      <li><a href="../../../index.html#personal">personal</a></li>
-      <li><a href="../../../index.html#plugins">plugins</a></li>
-      <li><a href="../../index.html" class="is-active">blog</a></li>
-    </ul>
-  </div>
-</nav>
-<main>
-<article class="post">
-  <header class="post-header">
-    <p class="post-date"><a href="../../index.html" class="back-link">&larr; back</a> <time datetime="2013-05-26">2013-05-26</time></p>
-    <h1 class="post-title">Dynamic Stack Implementation - C#</h1>
-    <p class="post-meta"><span class="tag">C#</span> <span class="tag">Data Structures</span></p>
-  </header>
-  <div class="post-content">
-    <p>A dynamic stack is a stack that is implemented not with an array but with nodes. A node consists of two things (a value and a link to another node).</p>
+    <div class="bg-grid"></div>
+    <nav class="topnav">
+        <div class="topnav-inner">
+            <a href="../../../index.html" class="brand"><span class="brand-bracket">&lt;blog&gt;</span><span
+                    class="brand-name">denis.rizov</span><span class="brand-bracket">&lt;/blog&gt;</span></a>
+        </div>
+    </nav>
+    <main>
+        <article class="post">
+            <header class="post-header">
+                <p class="post-date"><a href="../../index.html" class="back-link">&larr; back</a> <time
+                        datetime="2013-05-26">2013-05-26</time></p>
+                <h1 class="post-title">Dynamic Stack Implementation - C#</h1>
+                <p class="post-meta"><span class="tag">C#</span> <span class="tag">Data Structures</span></p>
+            </header>
+            <div class="post-content">
+                <p>A dynamic stack is a stack that is implemented not with an array but with nodes. A node consists of
+                    two things (a value and a link to another node).</p>
 
-    <p>The next image illustrates the stack.</p>
+                <p>The next image illustrates the stack.</p>
 
-    <img src="../../images/2013/05/dynamic-stack1.png" alt="dynamic-stack">
+                <img src="../../images/2013/05/dynamic-stack1.png" alt="dynamic-stack">
 
-    <p>You can find the full source <a href="https://github.com/dbrizov/Custom-Data-Structures-CSharp/blob/master/CustomDataStructures/CustomDataStructures/CustomStack.cs" target="_blank" rel="noopener">here</a>.</p>
+                <p>You can find the full source <a
+                        href="https://github.com/dbrizov/Custom-Data-Structures-CSharp/blob/master/CustomDataStructures/CustomDataStructures/CustomStack.cs"
+                        target="_blank" rel="noopener">here</a>.</p>
 
-    <p>Lets see how the Node is implemented.</p>
+                <p>Lets see how the Node is implemented.</p>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">private class Node
+                <pre class="code-block-post" data-lang="C#"><code class="language-csharp">private class Node
 {
     public T Item { get; set; }
     public Node Next { get; set; }
@@ -60,13 +62,16 @@
     }
 }</code></pre>
 
-    <p>In my implementation the value is called Item and the link to the next node is a Node reference called Next. We also have two constructors. One that creates a node with a given item and a link that points to null, and one that creates a node with a given item and a link that points to a node different than null.</p>
+                <p>In my implementation the value is called Item and the link to the next node is a Node reference
+                    called Next. We also have two constructors. One that creates a node with a given item and a link
+                    that points to null, and one that creates a node with a given item and a link that points to a node
+                    different than null.</p>
 
-    <hr>
+                <hr>
 
-    <p>What do we have?</p>
+                <p>What do we have?</p>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">private Node top;
+                <pre class="code-block-post" data-lang="C#"><code class="language-csharp">private Node top;
 private int count;
 
 public CustomStack()
@@ -83,13 +88,16 @@ public int Count
     }
 }</code></pre>
 
-    <p>We have a node that points to the top of the stack. The count is optional but it's always better to know how many items we have in a stack. We have only a simple default constructor that initializes our stack. The top is null and the count is zero when the stack is created. We also have a property for the count with getter only.</p>
+                <p>We have a node that points to the top of the stack. The count is optional but it's always better to
+                    know how many items we have in a stack. We have only a simple default constructor that initializes
+                    our stack. The top is null and the count is zero when the stack is created. We also have a property
+                    for the count with getter only.</p>
 
-    <hr>
+                <hr>
 
-    <p>Not lets see how the basic methods are implemented.</p>
+                <p>Not lets see how the basic methods are implemented.</p>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public void Push(T item)
+                <pre class="code-block-post" data-lang="C#"><code class="language-csharp">public void Push(T item)
 {
     if (this.top == null)
     {
@@ -105,23 +113,27 @@ public int Count
     this.count++;
 }</code></pre>
 
-    <p>The &ldquo;Push&rdquo; method adds a new node to the stack. If the stack is empty, then we create a new node that points to null. This new node is the only element in the stack (the stack top). If the stack is not empty however, a new node is created. This node has to be the top of the stack so we point it's link to the stack top. Then the top node starts to point the new node (the new node becomes the top of the stack).</p>
+                <p>The &ldquo;Push&rdquo; method adds a new node to the stack. If the stack is empty, then we create a
+                    new node that points to null. This new node is the only element in the stack (the stack top). If the
+                    stack is not empty however, a new node is created. This node has to be the top of the stack so we
+                    point it's link to the stack top. Then the top node starts to point the new node (the new node
+                    becomes the top of the stack).</p>
 
-    <p>Lets see it with our eyes.<br>
-    Consider the following code:</p>
+                <p>Lets see it with our eyes.<br>
+                    Consider the following code:</p>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">CustomStack&lt;int&gt; stack = new CustomStack&lt;int&gt;();
+                <pre class="code-block-post" data-lang="C#"><code class="language-csharp">CustomStack&lt;int&gt; stack = new CustomStack&lt;int&gt;();
 stack.Push(1);
 stack.Push(2);
 stack.Push(3);</code></pre>
 
-    <p>In the memory it should look something like this:</p>
+                <p>In the memory it should look something like this:</p>
 
-    <img src="../../images/2013/05/stack-push1.png" alt="stack-push">
+                <img src="../../images/2013/05/stack-push1.png" alt="stack-push">
 
-    <hr>
+                <hr>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public T Peek()
+                <pre class="code-block-post" data-lang="C#"><code class="language-csharp">public T Peek()
 {
     if (this.count == 0)
     {
@@ -132,11 +144,12 @@ stack.Push(3);</code></pre>
     return this.top.Item;
 }</code></pre>
 
-    <p>The &ldquo;Peek&rdquo; method gets the value of the top without removing the top from the stack. If the stack is empty however, an InvalidOperationException is thrown.</p>
+                <p>The &ldquo;Peek&rdquo; method gets the value of the top without removing the top from the stack. If
+                    the stack is empty however, an InvalidOperationException is thrown.</p>
 
-    <hr>
+                <hr>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public T Pop()
+                <pre class="code-block-post" data-lang="C#"><code class="language-csharp">public T Pop()
 {
     if (this.count == 0)
     {
@@ -151,11 +164,13 @@ stack.Push(3);</code></pre>
     return result;
 }</code></pre>
 
-    <p>The &ldquo;Pop&rdquo; is almost the same as &ldquo;Peek&rdquo;. The difference is that it not only gets the value of the top but it also removes the top from the stack. The value is taken and the top is assigned to it's link (next node). The count is decremented. Finally the value is returned.</p>
+                <p>The &ldquo;Pop&rdquo; is almost the same as &ldquo;Peek&rdquo;. The difference is that it not only
+                    gets the value of the top but it also removes the top from the stack. The value is taken and the top
+                    is assigned to it's link (next node). The count is decremented. Finally the value is returned.</p>
 
-    <p>Consider the following code:</p>
+                <p>Consider the following code:</p>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">CustomStack&lt;int&gt; stack = new CustomStack&lt;int&gt;();
+                <pre class="code-block-post" data-lang="C#"><code class="language-csharp">CustomStack&lt;int&gt; stack = new CustomStack&lt;int&gt;();
 stack.Push(1);
 stack.Push(2);
 stack.Push(3);
@@ -164,23 +179,24 @@ stack.Pop();
 stack.Pop();
 stack.Pop();</code></pre>
 
-    <p>The popping process looks like this:</p>
+                <p>The popping process looks like this:</p>
 
-    <img src="../../images/2013/05/stack-pop1.png" alt="stack-pop">
+                <img src="../../images/2013/05/stack-pop1.png" alt="stack-pop">
 
-    <hr>
+                <hr>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public void Clear()
+                <pre class="code-block-post" data-lang="C#"><code class="language-csharp">public void Clear()
 {
     this.top = null;
     this.count = 0;
 }</code></pre>
 
-    <p>&ldquo;Clear&rdquo; clears the stack. It's just like the constructor. We initialize the top with null and the count with 0.</p>
+                <p>&ldquo;Clear&rdquo; clears the stack. It's just like the constructor. We initialize the top with null
+                    and the count with 0.</p>
 
-    <hr>
+                <hr>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public object Clone()
+                <pre class="code-block-post" data-lang="C#"><code class="language-csharp">public object Clone()
 {
     CustomStack clone = new CustomStack();
 
@@ -206,18 +222,34 @@ stack.Pop();</code></pre>
     return clone;
 }</code></pre>
 
-    <p>This is maybe the most complex method of all. If the stack is empty the job is easy. We just make an empty stack and returned it. If it is not, then we have to make the actual copy. This method makes a deep copy. That means that the two stacks don't depend on each other. They are equal, but not the same (don't share the same reference). How do we do that? First we make the clone a copy of the top. The &ldquo;currentNode&rdquo; is a helper node that will walk through the original stack from the top to the end. The &ldquo;cloneLastNode&rdquo; is the last node of the clone stack at any state of the copying progress. At first the &ldquo;cloneLastNode&rdquo; is the top of the clone stack. While &ldquo;currentNode&rdquo; is not null (we haven't reached the original stack's end) we make a new node exactly the same as the current node we've reached. Then the last node of the clone stack is linked to the new node and then is assigned to it. That way in the next iteration this can be repeated. The &ldquo;currentNode&rdquo; is also assigned to it's link. Last we link the last node of the clone stack to null and copy the count of the original stack. I can say it like that: &ldquo;while we haven't reached the end of the stack, create a new node with value equal to the value of the current node we've reached, link the last node of the clone stack with the new node and make the last node of the clone to be the new node, then go to the next node of the original stack. Last the link of the last node of the clone stack is initialized with null&rdquo;.</p>
+                <p>This is maybe the most complex method of all. If the stack is empty the job is easy. We just make an
+                    empty stack and returned it. If it is not, then we have to make the actual copy. This method makes a
+                    deep copy. That means that the two stacks don't depend on each other. They are equal, but not the
+                    same (don't share the same reference). How do we do that? First we make the clone a copy of the top.
+                    The &ldquo;currentNode&rdquo; is a helper node that will walk through the original stack from the
+                    top to the end. The &ldquo;cloneLastNode&rdquo; is the last node of the clone stack at any state of
+                    the copying progress. At first the &ldquo;cloneLastNode&rdquo; is the top of the clone stack. While
+                    &ldquo;currentNode&rdquo; is not null (we haven't reached the original stack's end) we make a new
+                    node exactly the same as the current node we've reached. Then the last node of the clone stack is
+                    linked to the new node and then is assigned to it. That way in the next iteration this can be
+                    repeated. The &ldquo;currentNode&rdquo; is also assigned to it's link. Last we link the last node of
+                    the clone stack to null and copy the count of the original stack. I can say it like that:
+                    &ldquo;while we haven't reached the end of the stack, create a new node with value equal to the
+                    value of the current node we've reached, link the last node of the clone stack with the new node and
+                    make the last node of the clone to be the new node, then go to the next node of the original stack.
+                    Last the link of the last node of the clone stack is initialized with null&rdquo;.</p>
 
-    <p>You just have to think it through and try to write it in a paper.<br>
-    It's very hard to be explained, maybe a picture will help:</p>
+                <p>You just have to think it through and try to write it in a paper.<br>
+                    It's very hard to be explained, maybe a picture will help:</p>
 
-    <img src="../../images/2013/05/stack-clone-process.png" alt="stack-clone">
+                <img src="../../images/2013/05/stack-clone-process.png" alt="stack-clone">
 
-    <hr>
+                <hr>
 
-    <p>The next methods are not basic for Stack implementation but are helpful sometimes. You can consider them as extensions.</p>
+                <p>The next methods are not basic for Stack implementation but are helpful sometimes. You can consider
+                    them as extensions.</p>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public override string ToString()
+                <pre class="code-block-post" data-lang="C#"><code class="language-csharp">public override string ToString()
 {
     StringBuilder result = new StringBuilder();
 
@@ -231,11 +263,12 @@ stack.Pop();</code></pre>
     return result.ToString();
 }</code></pre>
 
-    <p>I've overrided the ToString method. It's very simple. The stack is walked through from the top to the end and the values of the nodes are appended to a StringBuilder.</p>
+                <p>I've overrided the ToString method. It's very simple. The stack is walked through from the top to the
+                    end and the values of the nodes are appended to a StringBuilder.</p>
 
-    <hr>
+                <hr>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public T[] ToArray()
+                <pre class="code-block-post" data-lang="C#"><code class="language-csharp">public T[] ToArray()
 {
     T[] result = new T[this.count];
 
@@ -249,11 +282,12 @@ stack.Pop();</code></pre>
     return result;
 }</code></pre>
 
-    <p>Exactly the same as ToString. The difference is that the values of the nodes are put into an array.</p>
+                <p>Exactly the same as ToString. The difference is that the values of the nodes are put into an array.
+                </p>
 
-    <hr>
+                <hr>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public IEnumerator GetEnumerator()
+                <pre class="code-block-post" data-lang="C#"><code class="language-csharp">public IEnumerator GetEnumerator()
 {
     Node currentNode = this.top;
     while (currentNode != null)
@@ -270,23 +304,28 @@ IEnumerator IEnumerable.GetEnumerator()
     return this.GetEnumerator();
 }</code></pre>
 
-    <p>This one is hard to be explained. My stack implements <code>IEnumerable&lt;T&gt;</code>. That way it can be walked through with a foreach loop. If you want to learn about it you can find a lot of information in MSDN or other resources. Maybe I will make a different post to explain how to implement this interface the hard way and the easy way.</p>
-  </div>
-</article>
-</main>
-<footer class="footer">
-  <div class="footer-inner">
-    <p class="comment">// <a href="https://github.com/dbrizov/dbrizov.github.io" target="_blank" rel="noopener">view source</a></p>
-    <div class="footer-links">
-      <a href="../../../index.html">home</a>
-    </div>
-  </div>
-</footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism-core.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+                <p>This one is hard to be explained. My stack implements <code>IEnumerable&lt;T&gt;</code>. That way it
+                    can be walked through with a foreach loop. If you want to learn about it you can find a lot of
+                    information in MSDN or other resources. Maybe I will make a different post to explain how to
+                    implement this interface the hard way and the easy way.</p>
+            </div>
+        </article>
+    </main>
+    <footer class="footer">
+        <div class="footer-inner">
+            <p class="comment">// <a href="https://github.com/dbrizov/dbrizov.github.io" target="_blank"
+                    rel="noopener">view source</a></p>
+            <div class="footer-links">
+                <a href="../../../index.html">home</a>
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
 </body>
+
 </html>

@@ -1,117 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bezier Curves — Denis Rizov</title>
-<link rel="icon" type="image/png" href="../../../images/icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../../css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bezier Curves — Denis Rizov</title>
+  <link rel="icon" type="image/png" href="../../../images/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../../../css/style.css">
 </head>
+
 <body>
-<div class="bg-grid"></div>
-<nav class="topnav">
-  <div class="topnav-inner">
-    <a href="../../../index.html" class="brand"><span class="brand-bracket">&lt;</span><span class="brand-name">denis.rizov</span><span class="brand-bracket">/&gt;</span></a>
-    <ul class="nav-links">
-      <li><a href="../../../index.html#about">about</a></li>
-      <li><a href="../../../index.html#games">games</a></li>
-      <li><a href="../../../index.html#personal">personal</a></li>
-      <li><a href="../../../index.html#plugins">plugins</a></li>
-      <li><a href="../../index.html" class="is-active">blog</a></li>
-    </ul>
-  </div>
-</nav>
-<main>
-<article class="post">
-  <header class="post-header">
-    <p class="post-date"><a href="../../index.html" class="back-link">&larr; back</a> <time datetime="2016-06-01">2016-06-01</time></p>
-    <h1 class="post-title">Bezier Curves</h1>
-    <p class="post-meta"><span class="tag">C#</span> <span class="tag">Curves</span> <span class="tag">Unity</span></p>
-  </header>
-  <div class="post-content">
-    <p>Bezier Curves are very useful and have many applications, but what do we need to know to implement one ourselves? Well, you can keep reading, or you can just download the <a href="https://github.com/dbrizov/Unity-BezierCurves" target="_blank" rel="noopener">unity package</a> that I made.</p>
+  <div class="bg-grid"></div>
+  <nav class="topnav">
+    <div class="topnav-inner">
+      <a href="../../../index.html" class="brand"><span class="brand-bracket">&lt;blog&gt;</span><span
+          class="brand-name">denis.rizov</span><span class="brand-bracket">&lt;/blog&gt;</span></a>
+    </div>
+  </nav>
+  <main>
+    <article class="post">
+      <header class="post-header">
+        <p class="post-date"><a href="../../index.html" class="back-link">&larr; back</a> <time
+            datetime="2016-06-01">2016-06-01</time></p>
+        <h1 class="post-title">Bezier Curves</h1>
+        <p class="post-meta"><span class="tag">C#</span> <span class="tag">Curves</span> <span class="tag">Unity</span>
+        </p>
+      </header>
+      <div class="post-content">
+        <p>Bezier Curves are very useful and have many applications, but what do we need to know to implement one
+          ourselves? Well, you can keep reading, or you can just download the <a
+            href="https://github.com/dbrizov/Unity-BezierCurves" target="_blank" rel="noopener">unity package</a> that I
+          made.</p>
 
-    <h2>Lerp (Linear Interpolation)</h2>
+        <h2>Lerp (Linear Interpolation)</h2>
 
-    <p>Before we start we need to know what <strong>Lerp</strong> is. If you want to understand it more mathematically you can check the description in <a href="https://en.wikipedia.org/wiki/Linear_interpolation" target="_blank" rel="noopener">wikipedia</a>. It's very simple. Lerp is a function which takes three parameters &mdash; <strong>a</strong>, <strong>b</strong> and <strong>t</strong>, where <strong>a</strong> is start value, <strong>b</strong> is end value, and <strong>t</strong> is time (between 0 and 1). The function is defined like this.</p>
+        <p>Before we start we need to know what <strong>Lerp</strong> is. If you want to understand it more
+          mathematically you can check the description in <a href="https://en.wikipedia.org/wiki/Linear_interpolation"
+            target="_blank" rel="noopener">wikipedia</a>. It's very simple. Lerp is a function which takes three
+          parameters &mdash; <strong>a</strong>, <strong>b</strong> and <strong>t</strong>, where <strong>a</strong> is
+          start value, <strong>b</strong> is end value, and <strong>t</strong> is time (between 0 and 1). The function
+          is defined like this.</p>
 
-    <img src="../../images/2016/06/lerp1.png" alt="Lerp">
+        <img src="../../images/2016/06/lerp1.png" alt="Lerp">
 
-    <p>In code it looks like this.</p>
+        <p>In code it looks like this.</p>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">float Lerp(float a, float b, float t)
+        <pre class="code-block-post" data-lang="C#"><code class="language-csharp">float Lerp(float a, float b, float t)
 {
     return (1f - t) * a + t * b;
 }</code></pre>
 
-    <p>Note that we can use the same logic if we want to lerp vectors.</p>
+        <p>Note that we can use the same logic if we want to lerp vectors.</p>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">Vector3 Lerp(Vector3 a, Vector3 b, float t)
+        <pre class="code-block-post" data-lang="C#"><code class="language-csharp">Vector3 Lerp(Vector3 a, Vector3 b, float t)
 {
     return (1f - t) * a + t * b;
 }</code></pre>
 
-    <h2>Bezier Curves</h2>
+        <h2>Bezier Curves</h2>
 
-    <p>Now that we know what lerp is we can start.<br>
-    A bezier curve is also defined by a function, but a function of higher degree (cubic to be precise). For a cubic curve we need 4 points (control points). These 4 points control the shape of the curve. Lets call the points <strong>p0</strong>, <strong>p1</strong>, <strong>p2</strong> and <strong>p3</strong>. <strong>p0</strong> is called <strong>start point</strong>, <strong>p1</strong> &mdash; <strong>start tangent</strong>, <strong>p2</strong> &mdash; <strong>end tangent</strong>, and <strong>p3</strong> &mdash; <strong>end point</strong>. Lets imagine that the points are positioned like this:</p>
+        <p>Now that we know what lerp is we can start.<br>
+          A bezier curve is also defined by a function, but a function of higher degree (cubic to be precise). For a
+          cubic curve we need 4 points (control points). These 4 points control the shape of the curve. Lets call the
+          points <strong>p0</strong>, <strong>p1</strong>, <strong>p2</strong> and <strong>p3</strong>.
+          <strong>p0</strong> is called <strong>start point</strong>, <strong>p1</strong> &mdash; <strong>start
+            tangent</strong>, <strong>p2</strong> &mdash; <strong>end tangent</strong>, and <strong>p3</strong> &mdash;
+          <strong>end point</strong>. Lets imagine that the points are positioned like this:</p>
 
-    <img src="../../images/2016/06/control-points.png" alt="Control Points">
+        <img src="../../images/2016/06/control-points.png" alt="Control Points">
 
-    <p>The slider at the bottom represents the <strong>t</strong> value.<br>
-    In order to construct the function we are going to go through some steps. In each step we are going to make some lerps, and at the end we will combine these lerps.</p>
+        <p>The slider at the bottom represents the <strong>t</strong> value.<br>
+          In order to construct the function we are going to go through some steps. In each step we are going to make
+          some lerps, and at the end we will combine these lerps.</p>
 
-    <h4>Step One</h4>
+        <h4>Step One</h4>
 
-    <p>We are going to make 3 lerps &mdash; between <strong>p0</strong> and <strong>p1</strong>, between <strong>p1</strong> and <strong>p2</strong>, and between <strong>p2</strong> and <strong>p3</strong>.</p>
+        <p>We are going to make 3 lerps &mdash; between <strong>p0</strong> and <strong>p1</strong>, between
+          <strong>p1</strong> and <strong>p2</strong>, and between <strong>p2</strong> and <strong>p3</strong>.</p>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">Vector3 a = Lerp(p0, p1, t);
+        <pre class="code-block-post" data-lang="C#"><code class="language-csharp">Vector3 a = Lerp(p0, p1, t);
 Vector3 b = Lerp(p1, p2, t);
 Vector3 c = Lerp(p2, p3, t);</code></pre>
 
-    <p>It looks like this.</p>
+        <p>It looks like this.</p>
 
-    <img src="../../images/2016/06/lerp1.gif" alt="Lerp One">
+        <img src="../../images/2016/06/lerp1.gif" alt="Lerp One">
 
-    <p>Now lets draw lines between <strong>a</strong> and <strong>b</strong>, and between <strong>b</strong> and <strong>c</strong>.</p>
+        <p>Now lets draw lines between <strong>a</strong> and <strong>b</strong>, and between <strong>b</strong> and
+          <strong>c</strong>.</p>
 
-    <img src="../../images/2016/06/lerp1-lines.gif" alt="Lerp One Plus Lines">
+        <img src="../../images/2016/06/lerp1-lines.gif" alt="Lerp One Plus Lines">
 
-    <h4>Step Two</h4>
+        <h4>Step Two</h4>
 
-    <p>Again we are going to make some lerps &mdash; this time between <strong>a</strong> and <strong>b</strong>, and between <strong>b</strong> and <strong>c</strong>.</p>
+        <p>Again we are going to make some lerps &mdash; this time between <strong>a</strong> and <strong>b</strong>,
+          and between <strong>b</strong> and <strong>c</strong>.</p>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">Vector3 d = Lerp(a, b, t);
+        <pre class="code-block-post" data-lang="C#"><code class="language-csharp">Vector3 d = Lerp(a, b, t);
 Vector3 e = Lerp(b, c, t);</code></pre>
 
-    <img src="../../images/2016/06/lerp2.gif" alt="Lerp Two">
+        <img src="../../images/2016/06/lerp2.gif" alt="Lerp Two">
 
-    <p>Now lets draw a line between <strong>d</strong> and <strong>e</strong>.</p>
+        <p>Now lets draw a line between <strong>d</strong> and <strong>e</strong>.</p>
 
-    <img src="../../images/2016/06/lerp2-lines.gif" alt="Lerp Two Plus Lines">
+        <img src="../../images/2016/06/lerp2-lines.gif" alt="Lerp Two Plus Lines">
 
-    <h4>Step Three</h4>
+        <h4>Step Three</h4>
 
-    <p>Now all we need to do is to make one last lerp between <strong>d</strong> and <strong>e</strong>, so we can find the point on the curve at any given time <strong>t</strong>.</p>
+        <p>Now all we need to do is to make one last lerp between <strong>d</strong> and <strong>e</strong>, so we can
+          find the point on the curve at any given time <strong>t</strong>.</p>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">Vector3 pointOnCurve = Lerp(d, e, t);</code></pre>
+        <pre class="code-block-post"
+          data-lang="C#"><code class="language-csharp">Vector3 pointOnCurve = Lerp(d, e, t);</code></pre>
 
-    <p>Lets draw the point.</p>
+        <p>Lets draw the point.</p>
 
-    <img src="../../images/2016/06/lerp3.gif" alt="Lerp Three">
+        <img src="../../images/2016/06/lerp3.gif" alt="Lerp Three">
 
-    <p>And now let's draw the bezier curve.</p>
+        <p>And now let's draw the bezier curve.</p>
 
-    <img src="../../images/2016/06/lerp3-curve.gif" alt="Draw Curve">
+        <img src="../../images/2016/06/lerp3-curve.gif" alt="Draw Curve">
 
-    <h4>The Function</h4>
+        <h4>The Function</h4>
 
-    <p>Now if we combine all these lerps, we get the final function that defines any bezier curve by 4 points and a <strong>t</strong> value.</p>
+        <p>Now if we combine all these lerps, we get the final function that defines any bezier curve by 4 points and a
+          <strong>t</strong> value.</p>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">Vector3 GetPointOnBezierCurve(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
+        <pre class="code-block-post" data-lang="C#"><code class="language-csharp">Vector3 GetPointOnBezierCurve(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
 {
     Vector3 a = Lerp(p0, p1, t);
     Vector3 b = Lerp(p1, p2, t);
@@ -123,21 +143,22 @@ Vector3 e = Lerp(b, c, t);</code></pre>
     return pointOnCurve;
 }</code></pre>
 
-    <p>However this function is not very cheap. With a little math we can simplify the function and thus improve the performance.</p>
+        <p>However this function is not very cheap. With a little math we can simplify the function and thus improve the
+          performance.</p>
 
-    <h2>Optimizations</h2>
+        <h2>Optimizations</h2>
 
-    <p>Mathematically the function looks like this.</p>
+        <p>Mathematically the function looks like this.</p>
 
-    <img src="../../images/2016/06/point-on-curve.png" alt="Point On Curve">
+        <img src="../../images/2016/06/point-on-curve.png" alt="Point On Curve">
 
-    <p>With a little calculations on paper we can simplify it to this.</p>
+        <p>With a little calculations on paper we can simplify it to this.</p>
 
-    <img src="../../images/2016/06/point-on-curve-optimized.png" alt="Optimized">
+        <img src="../../images/2016/06/point-on-curve-optimized.png" alt="Optimized">
 
-    <p>So the final function in code can be written like this.</p>
+        <p>So the final function in code can be written like this.</p>
 
-<pre class="code-block-post" data-lang="C#"><code class="language-csharp">Vector3 GetPointOnBezierCurve(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
+        <pre class="code-block-post" data-lang="C#"><code class="language-csharp">Vector3 GetPointOnBezierCurve(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
 {
     float u = 1f - t;
     float t2 = t * t;
@@ -154,38 +175,41 @@ Vector3 e = Lerp(b, c, t);</code></pre>
     return result;
 }</code></pre>
 
-    <h2>Bezier Splines (Bezier Paths)</h2>
+        <h2>Bezier Splines (Bezier Paths)</h2>
 
-    <p>What if we want to create a more complex curve?<br>
-    There are two options:</p>
+        <p>What if we want to create a more complex curve?<br>
+          There are two options:</p>
 
-    <ul>
-      <li>Use a higher degree function</li>
-      <li>Combine (chain) cubic bezier curves</li>
-    </ul>
+        <ul>
+          <li>Use a higher degree function</li>
+          <li>Combine (chain) cubic bezier curves</li>
+        </ul>
 
-    <p>The first option is not very good, because every time we increase the degree of the function, we create more job for the CPU (we increase the number of calculations).<br>
-    The second one is more widely used, and it can be explained like this:</p>
+        <p>The first option is not very good, because every time we increase the degree of the function, we create more
+          job for the CPU (we increase the number of calculations).<br>
+          The second one is more widely used, and it can be explained like this:</p>
 
-    <img src="../../images/2016/06/bezier-path.png" alt="Bezier Spline">
+        <img src="../../images/2016/06/bezier-path.png" alt="Bezier Spline">
 
-    <p><strong>p3</strong> is the end of the first bezier curve and the start of the second one, and so on.</p>
-  </div>
-</article>
-</main>
-<footer class="footer">
-  <div class="footer-inner">
-    <p class="comment">// <a href="https://github.com/dbrizov/dbrizov.github.io" target="_blank" rel="noopener">view source</a></p>
-    <div class="footer-links">
-      <a href="../../../index.html">home</a>
+        <p><strong>p3</strong> is the end of the first bezier curve and the start of the second one, and so on.</p>
+      </div>
+    </article>
+  </main>
+  <footer class="footer">
+    <div class="footer-inner">
+      <p class="comment">// <a href="https://github.com/dbrizov/dbrizov.github.io" target="_blank" rel="noopener">view
+          source</a></p>
+      <div class="footer-links">
+        <a href="../../../index.html">home</a>
+      </div>
     </div>
-  </div>
-</footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism-core.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism-core.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
 </body>
+
 </html>
