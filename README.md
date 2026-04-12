@@ -1,1 +1,1 @@
-### My personal portfolio - <http://dbrizov.github.io>
+### My portfolio - [https://denisrizov.com/](https://denisrizov.com/)
