@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Observer Pattern — Denis Rizov</title>
+    <meta name="description" content="Denis Rizov - Observer Pattern">
+    <title>Denis Rizov - Observer Pattern</title>
     <link rel="icon" type="image/png" href="../../images/icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +19,7 @@
     <div class="bg-grid"></div>
     <nav class="topnav">
         <div class="topnav-inner">
-            <a href="../../index.html" class="brand"><span class="brand-bracket">&lt;blog&gt;</span><span
+            <a href="../index.html" class="brand"><span class="brand-bracket">&lt;blog&gt;</span><span
                     class="brand-name">denis.rizov</span><span class="brand-bracket">&lt;/blog&gt;</span></a>
         </div>
     </nav>
@@ -53,7 +54,8 @@
                     &ldquo;Fall from high height without dying&rdquo;. As you can guess this achievement is somehow tied
                     to the Physics Engine, but do we really want to see a call to
                     <code>AchievementsManager.Unlock(Achievement.FallFromHighHeightWithoutDying)</code> right in the
-                    middle of our collision detection or something? How do we avoid that?</p>
+                    middle of our collision detection or something? How do we avoid that?
+                </p>
 
                 <p>That's what the observer pattern is for. It lets one piece of code announce that something
                     interesting happened without actually caring who receives the notification.</p>
@@ -89,7 +91,8 @@
 
                 <p>We want to get rid of the call that unlocks the achievement through our
                     <code>AchievementsManager</code>, because this way we couple the achievements system with our
-                    character. We are going to replace it with a call to another method:</p>
+                    character. We are going to replace it with a call to another method:
+                </p>
 
                 <pre class="code-block-post"
                     data-lang="C#"><code class="language-csharp">NotifyObservers(this, Event.FallFromHighHeightWithoutDying);</code></pre>
@@ -99,7 +102,8 @@
                     however, he knows what to do. That someone is actually the observer. There can also be more than one
                     observer, but let's not get ahead of ourselves. Now we are decoupled from the
                     <code>AchievementsManager</code>, but where did we actually get the <code>NotifyObservers</code>
-                    method from? All I can say is that it's part of the big picture. Now lets draw that picture.</p>
+                    method from? All I can say is that it's part of the big picture. Now lets draw that picture.
+                </p>
 
                 <h3>The Observer</h3>
 

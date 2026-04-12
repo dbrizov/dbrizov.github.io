@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abstract Input System in Unity — Denis Rizov</title>
+    <meta name="description" content="Denis Rizov - Abstract Input System in Unity">
+    <title>Denis Rizov - Abstract Input System in Unity</title>
     <link rel="icon" type="image/png" href="../../images/icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +19,7 @@
     <div class="bg-grid"></div>
     <nav class="topnav">
         <div class="topnav-inner">
-            <a href="../../index.html" class="brand"><span class="brand-bracket">&lt;blog&gt;</span><span
+            <a href="../index.html" class="brand"><span class="brand-bracket">&lt;blog&gt;</span><span
                     class="brand-name">denis.rizov</span><span class="brand-bracket">&lt;/blog&gt;</span></a>
         </div>
     </nav>
@@ -28,8 +29,8 @@
                 <p class="post-date"><a href="../index.html" class="back-link">&larr; back</a> <time
                         datetime="2016-02-10">2016-02-10</time></p>
                 <h1 class="post-title">Abstract Input System in Unity</h1>
-                <p class="post-meta"><span class="tag">C#</span> <span class="tag">Input</span> <span
-                        class="tag">Unity</span></p>
+                <p class="post-meta"><span class="tag">C#</span> <span class="tag">Input</span> <span class="tag">Unity
+                        Engine</span></p>
             </header>
             <div class="post-content">
                 <p>Right now I am creating a game. For this game I wanted to create a good input system. The thing is I
@@ -38,10 +39,11 @@
                     and see how the big guys did it. As expected, their code was huge, but I took only the parts for my
                     needs.</p>
 
-                <h3>Interfaces</h3>
+                <h2>Interfaces</h2>
 
                 <p>There are 2 basic interfaces for taking raw input: <strong>IAxisInput</strong> and
-                    <strong>IButtonInput</strong>.</p>
+                    <strong>IButtonInput</strong>.
+                </p>
 
                 <pre class="code-block-post" data-lang="C#"><code class="language-csharp">public interface IAxisInput
 {
@@ -66,7 +68,8 @@ public interface IButtonInput
 
                 <p>This interface provides us with input from different sources. For example, we can create a
                     <strong>KeyboardAndMouseInputProvider</strong>, or a <strong>MobileInputProvider</strong>. Lets
-                    actually implement those two.</p>
+                    actually implement those two.
+                </p>
 
                 <p><strong>KeyboardAndMouseInputProvider</strong></p>
 
@@ -231,7 +234,7 @@ public interface IButtonInput
     }
 }</code></pre>
 
-                <h3>Another layer of abstraction</h3>
+                <h2>Another layer of abstraction</h2>
 
                 <p>In Unity if we want to get an axis we just do it like this.</p>
 
@@ -267,7 +270,7 @@ public interface IButtonInput
                 <pre class="code-block-post" data-lang="C#"><code class="language-csharp">PlayerInput.InputProvider = mobileInputProvider;
 float horizontalAxis = PlayerInput.HorizontalAxisInput.GetAxis();</code></pre>
 
-                <h3>Compound Input Provider</h3>
+                <h2>Compound Input Provider</h2>
 
                 <p>But what if we want to be able to get input both from a keyboard and from a mobile device. Well we
                     need a provider that gets input from both, but that will be kinda stupid, because we have them in
@@ -275,7 +278,8 @@ float horizontalAxis = PlayerInput.HorizontalAxisInput.GetAxis();</code></pre>
                     of a smart way to combine both input providers. That is how we do it.</p>
 
                 <p>First we create an axis input that can get axes from many sources. We will call this one
-                    <strong>CompoundAxisInput</strong>. Here is the implementation.</p>
+                    <strong>CompoundAxisInput</strong>. Here is the implementation.
+                </p>
 
                 <pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class CompoundAxisInput : IAxisInput
 {
@@ -352,12 +356,14 @@ float horizontalAxis = PlayerInput.HorizontalAxisInput.GetAxis();</code></pre>
                     <strong>GetAxis()</strong> method, we find the most negative one and most positive one from all of
                     the axis inputs and return the sum of them. That way if we press left on a keyboard and right on a
                     joystick for example, the character will stay in one place, because the <strong>horizontal</strong>
-                    axis will be zero.</p>
+                    axis will be zero.
+                </p>
 
                 <hr>
 
                 <p>Now we have to do the same for the button input. Lets call the class
-                    <strong>CompoundButtonInput</strong>.</p>
+                    <strong>CompoundButtonInput</strong>.
+                </p>
 
                 <pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class CompoundButtonInput : IButtonInput
 {
@@ -519,7 +525,8 @@ float horizontalAxis = PlayerInput.HorizontalAxisInput.GetAxis();</code></pre>
                 <hr>
 
                 <p>All that's left is to provide our <strong>PlayerInput</strong> class with the right
-                    <strong>CompoundInputProvider</strong>. I do this in an <strong>InputManager</strong> script.</p>
+                    <strong>CompoundInputProvider</strong>. I do this in an <strong>InputManager</strong> script.
+                </p>
 
                 <pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class InputManager : MonoBehaviour
 {

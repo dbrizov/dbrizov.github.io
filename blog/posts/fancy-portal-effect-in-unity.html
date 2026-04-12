@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>How To Create A Fancy Portal Effect In Unity — Denis Rizov</title>
+    <meta name="description" content="Denis Rizov - How to create a fancy portal effect in Unity Engine">
+    <title>Denis Rizov - How to create a fancy portal effect in Unity Engine</title>
     <link rel="icon" type="image/png" href="../../images/icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +19,7 @@
     <div class="bg-grid"></div>
     <nav class="topnav">
         <div class="topnav-inner">
-            <a href="../../index.html" class="brand"><span class="brand-bracket">&lt;blog&gt;</span><span
+            <a href="../index.html" class="brand"><span class="brand-bracket">&lt;blog&gt;</span><span
                     class="brand-name">denis.rizov</span><span class="brand-bracket">&lt;/blog&gt;</span></a>
         </div>
     </nav>
@@ -27,9 +28,9 @@
             <header class="post-header">
                 <p class="post-date"><a href="../index.html" class="back-link">&larr; back</a> <time
                         datetime="2016-08-29">2016-08-29</time></p>
-                <h1 class="post-title">How To Create A Fancy Portal Effect In Unity</h1>
-                <p class="post-meta"><span class="tag">Effects</span> <span class="tag">Shaders</span> <span
-                        class="tag">Unity</span></p>
+                <h1 class="post-title">How to create a fancy portal effect in Unity Engine</h1>
+                <p class="post-meta"><span class="tag">VFX</span> <span class="tag">Shaders</span> <span
+                        class="tag">Unity Engine</span></p>
             </header>
             <div class="post-content">
                 <h2>Expectations</h2>
@@ -38,19 +39,19 @@
                     pleased with the result and I want to share with you how to create one yourselves. Here is the final
                     effect that we will be making today.</p>
 
-                <img src="../images/2016/08/final-distorted-plus-background.gif" alt="Final portal effect">
+                <img src="../images/fancy-portal-effect-in-unity/final-distorted-plus-background.gif" alt="Final portal effect">
 
                 <h2>What do we need</h2>
 
                 <p>We need four textures.</p>
 
-                <img src="../images/2016/08/textures.jpg" alt="The four source textures">
+                <img src="../images/fancy-portal-effect-in-unity/textures.jpg" alt="The four source textures">
 
                 <ul>
-                    <li><a href="../../images/2016/08/t_portalbackground.png">T_Portalbackground</a></li>
-                    <li><a href="../../images/2016/08/t_portalcircle.png">T_PortalCircle</a></li>
-                    <li><a href="../../images/2016/08/t_portaldust.png">T_PortalDust</a></li>
-                    <li><a href="../../images/2016/08/t_portalnoise.png">T_PortalNoise</a></li>
+                    <li><a href="../../images/fancy-portal-effect-in-unity/t_portalbackground.png">T_Portalbackground</a></li>
+                    <li><a href="../../images/fancy-portal-effect-in-unity/t_portalcircle.png">T_PortalCircle</a></li>
+                    <li><a href="../../images/fancy-portal-effect-in-unity/t_portaldust.png">T_PortalDust</a></li>
+                    <li><a href="../../images/fancy-portal-effect-in-unity/t_portalnoise.png">T_PortalNoise</a></li>
                 </ul>
 
                 <p>With the first 3 we are going to create the particle system itself, which consists of 5 sub-particle
@@ -216,7 +217,7 @@
                     <strong>first texture</strong>. The exact color is &ldquo;<strong>FFFFFF4B</strong>&rdquo;. It
                     should look like this.</p>
 
-                <img src="../images/2016/08/background.gif" alt="Background">
+                <img src="../images/fancy-portal-effect-in-unity/background.gif" alt="Background">
 
                 <p>Nice start huh?</p>
 
@@ -227,7 +228,7 @@
                     over the white one. The exact color is &ldquo;<strong>000000AF</strong>&rdquo;. Something like this.
                 </p>
 
-                <img src="../images/2016/08/black-hole.gif" alt="Black hole">
+                <img src="../images/fancy-portal-effect-in-unity/black-hole.gif" alt="Black hole">
 
                 <h3>Rotating Frame</h3>
 
@@ -235,7 +236,7 @@
                     circles &mdash; each with different start rotation and angular velocity. The exact color is
                     &ldquo;<strong>FFFFFF80</strong>&rdquo;. It looks like this.</p>
 
-                <img src="../images/2016/08/first-circles.gif" alt="Rotating frame">
+                <img src="../images/fancy-portal-effect-in-unity/first-circles.gif" alt="Rotating frame">
 
                 <h3>Pulsing Circles</h3>
 
@@ -244,7 +245,7 @@
                     and no angular velocity. The rate is 3 particles per 2 seconds. Again the color of each circle is
                     &ldquo;<strong>FFFFFF80</strong>&rdquo;.</p>
 
-                <img src="../images/2016/08/pulsing-circles.gif" alt="Pulsing circles">
+                <img src="../images/fancy-portal-effect-in-unity/pulsing-circles.gif" alt="Pulsing circles">
 
                 <h3>Small Sucked Particles</h3>
 
@@ -252,7 +253,7 @@
                     particles that are sucked into the portal. Again the color is
                     &ldquo;<strong>FFFFFF80</strong>&rdquo;.</p>
 
-                <img src="../images/2016/08/final.gif" alt="Sucked particles">
+                <img src="../images/fancy-portal-effect-in-unity/final.gif" alt="Sucked particles">
 
                 <h3>Adding Distortion</h3>
 
@@ -260,11 +261,11 @@
                         additive and multiplicative shaders</strong> and the <strong>noise texture</strong>. The only
                     thing we don't distort are the sucked particles.</p>
 
-                <img src="../images/2016/08/background-distorted.gif" alt="Background distorted">
-                <img src="../images/2016/08/black-hole-distorted.gif" alt="Black hole distorted">
-                <img src="../images/2016/08/first-circles-distorted.gif" alt="Rotating frame distorted">
-                <img src="../images/2016/08/pulsing-circles-distorted.gif" alt="Pulsing circles distorted">
-                <img src="../images/2016/08/final-distorted.gif" alt="Final distorted">
+                <img src="../images/fancy-portal-effect-in-unity/background-distorted.gif" alt="Background distorted">
+                <img src="../images/fancy-portal-effect-in-unity/black-hole-distorted.gif" alt="Black hole distorted">
+                <img src="../images/fancy-portal-effect-in-unity/first-circles-distorted.gif" alt="Rotating frame distorted">
+                <img src="../images/fancy-portal-effect-in-unity/pulsing-circles-distorted.gif" alt="Pulsing circles distorted">
+                <img src="../images/fancy-portal-effect-in-unity/final-distorted.gif" alt="Final distorted">
             </div>
         </article>
     </main>
