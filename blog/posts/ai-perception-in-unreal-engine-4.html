@@ -58,8 +58,8 @@
           <strong>AIPerception</strong> Component. We are going to configure it only for sight sense like so.
         </p>
 
-        <img src="../images/ai-perception-in-unreal-engine-4/enemy_ai_controller.png" alt="AEnemyAIController">
-        <img src="../images/ai-perception-in-unreal-engine-4/ai_perception_component.png"
+        <img src="../images/ai-perception-in-unreal-engine-4/enemy-ai-controller.png" alt="AEnemyAIController">
+        <img src="../images/ai-perception-in-unreal-engine-4/ai-perception-component.png"
           alt="UAIPerceptionComponentSetup">
 
         <p>I left everything to the default values. As you can see it's setup only to detect enemies.</p>
@@ -69,16 +69,16 @@
         <p>The <strong>AIPerceptionStimuliSourceComponent</strong> must be added to any actors that we want to be
           stimuli sources for the <strong>AIPerceptionComponent</strong>. In our case we add it to our character.</p>
 
-        <img src="../images/ai-perception-in-unreal-engine-4/knight_character.png" alt="AKnightCharacter">
-        <img src="../images/ai-perception-in-unreal-engine-4/ai_perception_stimuli_source_component1.png"
+        <img src="../images/ai-perception-in-unreal-engine-4/knight-character.png" alt="AKnightCharacter">
+        <img src="../images/ai-perception-in-unreal-engine-4/ai-perception-stimuli-source-component1.png"
           alt="UAIPerceptionStimuliSourceComponent">
 
         <h3>Is it working?</h3>
 
         <p>Lets add an event to the EnemyAIController Blueprint to see if it's working.</p>
 
-        <img src="../images/ai-perception-in-unreal-engine-4/enemy_ai_blueprint.png" alt="BP_EnemyAIController">
-        <img src="../images/ai-perception-in-unreal-engine-4/perception_not_working.gif" alt="PerceptionNotWorking">
+        <img src="../images/ai-perception-in-unreal-engine-4/enemy-ai-blueprint.png" alt="BP_EnemyAIController">
+        <img src="../images/ai-perception-in-unreal-engine-4/perception-not-working.gif" alt="PerceptionNotWorking">
 
         <p>Well, the &ldquo;Found&rdquo; message is not printed so it's not working. Well I can actually say that it
           works properly. The message is not being printed on screen because the enemy is not considering us as an
@@ -141,7 +141,7 @@ FGenericTeamId AKnightCharacter::GetGenericTeamId() const
 
         <p>Now if we test it again, the enemy is considering us as an enemy and is seeing us.</p>
 
-        <img src="../images/ai-perception-in-unreal-engine-4/perception_working.gif" alt="PerceptionWorking">
+        <img src="../images/ai-perception-in-unreal-engine-4/perception-working.gif" alt="PerceptionWorking">
 
         <p>The reason our character is &ldquo;Found&rdquo; if we exit the field of view of the enemy is that the
           perception is updated when we exit the sight of the enemy too.</p>
