@@ -466,7 +466,6 @@ a:focus-visible,
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 16px 18px;
   transition: transform .15s ease, border-color .15s ease;
 }
 .post-item:hover {
@@ -476,6 +475,7 @@ a:focus-visible,
 .post-item a {
   display: block;
   color: inherit;
+  padding: 16px 18px;
 }
 .post-item time {
   font-family: var(--font-mono);
