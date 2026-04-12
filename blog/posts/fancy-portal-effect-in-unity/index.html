@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How To Create A Fancy Portal Effect In Unity — Denis Rizov</title>
+<link rel="icon" type="image/png" href="../../../images/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="../../../index.html" class="brand"><span class="brand-bracket">&lt;</span><span class="brand-name">denis.rizov</span><span class="brand-bracket">/&gt;</span></a>
+    <ul class="nav-links">
+      <li><a href="../../../index.html#about">about</a></li>
+      <li><a href="../../../index.html#games">games</a></li>
+      <li><a href="../../../index.html#personal">personal</a></li>
+      <li><a href="../../../index.html#plugins">plugins</a></li>
+      <li><a href="../../index.html" class="is-active">blog</a></li>
+    </ul>
+  </div>
+</nav>
+<main>
+<article class="post">
+  <header class="post-header">
+    <p class="post-date"><a href="../../index.html" class="back-link">&larr; back</a> <time datetime="2016-08-29">2016-08-29</time></p>
+    <h1 class="post-title">How To Create A Fancy Portal Effect In Unity</h1>
+    <p class="post-meta"><span class="tag">Effects</span> <span class="tag">Shaders</span> <span class="tag">Unity</span></p>
+  </header>
+  <div class="post-content">
+    <h2>Expectations</h2>
+
+    <p>Recently I created a portal particle system in Unity for a game that I am developing. I am really pleased with the result and I want to share with you how to create one yourselves. Here is the final effect that we will be making today.</p>
+
+    <img src="../../images/2016/08/final-distorted-plus-background.gif" alt="Final portal effect">
+
+    <h2>What do we need</h2>
+
+    <p>We need four textures.</p>
+
+    <img src="../../images/2016/08/textures.jpg" alt="The four source textures">
+
+    <ul>
+      <li><a href="../../images/2016/08/t_portalbackground.png">T_Portalbackground</a></li>
+      <li><a href="../../images/2016/08/t_portalcircle.png">T_PortalCircle</a></li>
+      <li><a href="../../images/2016/08/t_portaldust.png">T_PortalDust</a></li>
+      <li><a href="../../images/2016/08/t_portalnoise.png">T_PortalNoise</a></li>
+    </ul>
+
+    <p>With the first 3 we are going to create the particle system itself, which consists of 5 sub-particle systems. With the noise texture (the one with RGB colors) we are going to distort each sub-system to achieve the final result.</p>
+
+    <p>We are also going to need 2 custom shaders &mdash; <strong>Additive and Multiplicative Particle Distortion Shaders</strong>. They are very cheap and optimized especially for mobile devices. The game I am working on is a mobile game after all.</p>
+
+    <p>Here is the <strong>Additive Shader</strong>.</p>
+
+<pre class="code-block-post" data-lang="C++"><code class="language-cpp">Shader "Custom/Mobile/Particles/Additive Distortion" {
+    Properties{
+        _MainTex("Main Texture", 2D) = "white" {}
+        _NoiseTex("Noise Texture", 2D) = "white" {}
+        _IntensityAndScrolling("Intensity (XY), Scrolling (ZW)", Vector) = (0.1,0.1,0.1,0.1)
+    }
+    SubShader{
+        Tags {
+            "IgnoreProjector" = "True"
+            "Queue" = "Transparent"
+            "RenderType" = "Transparent"
+        }
+        Pass {
+            Blend One One
+            ZWrite Off
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            uniform sampler2D _MainTex;
+            uniform sampler2D _NoiseTex;
+            uniform float4 _MainTex_ST;
+            uniform float4 _NoiseTex_ST;
+            uniform float4 _IntensityAndScrolling;
+
+            struct VertexInput {
+                float4 vertex : POSITION;
+                float2 texcoord0 : TEXCOORD0;
+                float2 texcoord1 : TEXCOORD1;
+                float4 vertexColor : COLOR;
+            };
+
+            struct VertexOutput {
+                float4 pos : SV_POSITION;
+                float2 uv0 : TEXCOORD0;
+                float2 uv1 : TEXCOORD1;
+                float4 vertexColor : COLOR;
+            };
+
+            VertexOutput vert(VertexInput v) {
+                VertexOutput o;
+                o.uv0 = TRANSFORM_TEX(v.texcoord0, _MainTex);
+                o.uv1 = TRANSFORM_TEX(v.texcoord1, _NoiseTex);
+                o.uv1 += _Time.yy * _IntensityAndScrolling.zw;
+                o.vertexColor = v.vertexColor;
+                o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+
+                return o;
+            }
+
+            float4 frag(VertexOutput i) : COLOR {
+                float4 noiseTex = tex2D(_NoiseTex, i.uv1);
+                float2 offset = (noiseTex.rg * 2 - 1) * _IntensityAndScrolling.rg;
+                float2 uvNoise = i.uv0 + offset;
+                float4 mainTex = tex2D(_MainTex, uvNoise);
+                float3 emissive = (mainTex.rgb * i.vertexColor.rgb) * (mainTex.a * i.vertexColor.a);
+
+                return fixed4(emissive, 1);
+            }
+            ENDCG
+        }
+    }
+    FallBack "Mobile/Particles/Additive"
+}</code></pre>
+
+    <p>And the <strong>Multiplicative Shader</strong>.</p>
+
+<pre class="code-block-post" data-lang="C++"><code class="language-cpp">Shader "Custom/Mobile/Particles/Multiply Distortion" {
+    Properties{
+        _MainTex("Main Texture", 2D) = "white" {}
+        _NoiseTex("Noise Texture", 2D) = "white" {}
+        _IntensityAndScrolling("Intensity (XY), Scrolling (ZW)", Vector) = (0.1,0.1,0.1,0.1)
+    }
+    SubShader{
+        Tags {
+            "IgnoreProjector" = "True"
+            "Queue" = "Transparent"
+            "RenderType" = "Transparent"
+        }
+        Pass {
+            Blend DstColor Zero
+            ZWrite Off
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            uniform sampler2D _MainTex;
+            uniform sampler2D _NoiseTex;
+            uniform float4 _MainTex_ST;
+            uniform float4 _NoiseTex_ST;
+            uniform float4 _IntensityAndScrolling;
+
+            struct VertexInput {
+                float4 vertex : POSITION;
+                float2 texcoord0 : TEXCOORD0;
+                float2 texcoord1 : TEXCOORD1;
+                float4 vertexColor : COLOR;
+            };
+
+            struct VertexOutput {
+                float4 pos : SV_POSITION;
+                float2 uv0 : TEXCOORD0;
+                float2 uv1 : TEXCOORD1;
+                float4 vertexColor : COLOR;
+            };
+
+            VertexOutput vert(VertexInput v) {
+                VertexOutput o;
+                o.uv0 = TRANSFORM_TEX(v.texcoord0, _MainTex);
+                o.uv1 = TRANSFORM_TEX(v.texcoord1, _NoiseTex);
+                o.uv1 += _Time.yy * _IntensityAndScrolling.zw;
+                o.vertexColor = v.vertexColor;
+                o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+
+                return o;
+            }
+
+            float4 frag(VertexOutput i) : COLOR {
+                float4 noiseTex = tex2D(_NoiseTex, i.uv1);
+                float2 offset = (noiseTex.rg * 2 - 1) * _IntensityAndScrolling.rg;
+                float2 uvNoise = i.uv0 + offset;
+                float4 mainTex = tex2D(_MainTex, uvNoise);
+                float3 emissive = lerp(float3(1,1,1), mainTex.rgb * i.vertexColor.rgb, mainTex.a * i.vertexColor.a);
+
+                return fixed4(emissive, 1);
+            }
+            ENDCG
+        }
+    }
+    FallBack "Mobile/Particles/Multiply"
+}</code></pre>
+
+    <p>As you can see, they are almost exactly the same. The difference is only in the blending and the calculation of the emissive color in the fragment function.</p>
+
+    <h2>Step By Step</h2>
+
+    <p>First we are going to make the particle system with the <strong>built-in mobile additive and multiplicative shaders</strong>, and then we are going to add distortion with our custom shaders. I want to do this, so you can see how big the difference is.</p>
+
+    <h3>Background</h3>
+
+    <p>Using an <strong>additive shader</strong> we start by emitting a single particle with the <strong>first texture</strong>. The exact color is &ldquo;<strong>FFFFFF4B</strong>&rdquo;. It should look like this.</p>
+
+    <img src="../../images/2016/08/background.gif" alt="Background">
+
+    <p>Nice start huh?</p>
+
+    <h3>Black Hole</h3>
+
+    <p>Yeah, you hear right. We are going to create a black hole.<br>
+    By using a <strong>multiplicative shader</strong> we are going to emit a single smaller black circle over the white one. The exact color is &ldquo;<strong>000000AF</strong>&rdquo;. Something like this.</p>
+
+    <img src="../../images/2016/08/black-hole.gif" alt="Black hole">
+
+    <h3>Rotating Frame</h3>
+
+    <p>Next using an <strong>additive shader</strong> and the <strong>second texture</strong> we emit 3 circles &mdash; each with different start rotation and angular velocity. The exact color is &ldquo;<strong>FFFFFF80</strong>&rdquo;. It looks like this.</p>
+
+    <img src="../../images/2016/08/first-circles.gif" alt="Rotating frame">
+
+    <h3>Pulsing Circles</h3>
+
+    <p>Again using an <strong>additive shader</strong> and the <strong>second texture</strong> we start emitting pulsing circles from the center towards the frame. Each circle has different start rotation and no angular velocity. The rate is 3 particles per 2 seconds. Again the color of each circle is &ldquo;<strong>FFFFFF80</strong>&rdquo;.</p>
+
+    <img src="../../images/2016/08/pulsing-circles.gif" alt="Pulsing circles">
+
+    <h3>Small Sucked Particles</h3>
+
+    <p>Using an <strong>additive shader</strong> and the <strong>third texture</strong> we add small particles that are sucked into the portal. Again the color is &ldquo;<strong>FFFFFF80</strong>&rdquo;.</p>
+
+    <img src="../../images/2016/08/final.gif" alt="Sucked particles">
+
+    <h3>Adding Distortion</h3>
+
+    <p>The only thing that's left is adding distortion to each sub-particle system with our <strong>custom additive and multiplicative shaders</strong> and the <strong>noise texture</strong>. The only thing we don't distort are the sucked particles.</p>
+
+    <img src="../../images/2016/08/background-distorted.gif" alt="Background distorted">
+    <img src="../../images/2016/08/black-hole-distorted.gif" alt="Black hole distorted">
+    <img src="../../images/2016/08/first-circles-distorted.gif" alt="Rotating frame distorted">
+    <img src="../../images/2016/08/pulsing-circles-distorted.gif" alt="Pulsing circles distorted">
+    <img src="../../images/2016/08/final-distorted.gif" alt="Final distorted">
+  </div>
+</article>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <p class="comment">// <a href="https://github.com/dbrizov/dbrizov.github.io" target="_blank" rel="noopener">view source</a></p>
+    <div class="footer-links">
+      <a href="../../../index.html">home</a>
+    </div>
+  </div>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+</body>
+</html>

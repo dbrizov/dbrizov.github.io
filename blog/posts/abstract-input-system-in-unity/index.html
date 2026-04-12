@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abstract Input System in Unity — Denis Rizov</title>
+<link rel="icon" type="image/png" href="../../../images/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="../../../index.html" class="brand"><span class="brand-bracket">&lt;</span><span class="brand-name">denis.rizov</span><span class="brand-bracket">/&gt;</span></a>
+    <ul class="nav-links">
+      <li><a href="../../../index.html#about">about</a></li>
+      <li><a href="../../../index.html#games">games</a></li>
+      <li><a href="../../../index.html#personal">personal</a></li>
+      <li><a href="../../../index.html#plugins">plugins</a></li>
+      <li><a href="../../index.html" class="is-active">blog</a></li>
+    </ul>
+  </div>
+</nav>
+<main>
+<article class="post">
+  <header class="post-header">
+    <p class="post-date"><a href="../../index.html" class="back-link">&larr; back</a> <time datetime="2016-02-10">2016-02-10</time></p>
+    <h1 class="post-title">Abstract Input System in Unity</h1>
+    <p class="post-meta"><span class="tag">C#</span> <span class="tag">Input</span> <span class="tag">Unity</span></p>
+  </header>
+  <div class="post-content">
+    <p>Right now I am creating a game. For this game I wanted to create a good input system. The thing is I didn't know where to start. I am a big fan of <a href="http://store.steampowered.com/app/261570/" target="_blank" rel="noopener">Ori and the Blind Forest</a>, so I decided to decompile the game and see how the big guys did it. As expected, their code was huge, but I took only the parts for my needs.</p>
+
+    <h3>Interfaces</h3>
+
+    <p>There are 2 basic interfaces for taking raw input: <strong>IAxisInput</strong> and <strong>IButtonInput</strong>.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public interface IAxisInput
+{
+    float GetAxis();
+}
+
+public interface IButtonInput
+{
+    bool GetButton(); // When the button is held down
+    bool GetButtonDown(); // Executed once on button down
+    bool GetButtonUp(); // Executed once on button up
+}</code></pre>
+
+    <p>For the next interface you need to know exactly what the character can do. In my case the character can only move horizontally and jump, so the interface looks like this.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public interface IInputProvider
+{
+    IAxisInput HorizontalAxisInput { get; }
+    IButtonInput JumpButtonInput { get; }
+}</code></pre>
+
+    <p>This interface provides us with input from different sources. For example, we can create a <strong>KeyboardAndMouseInputProvider</strong>, or a <strong>MobileInputProvider</strong>. Lets actually implement those two.</p>
+
+    <p><strong>KeyboardAndMouseInputProvider</strong></p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class KeyboardAndMouseInputProvider : IInputProvider
+{
+    private IAxisInput horizontalAxisInput;
+    private IButtonInput jumpButtonInput;
+
+    public KeyboardAndMouseInputProvider()
+    {
+        this.horizontalAxisInput = new CHorizontalAxisInput();
+        this.jumpButtonInput = new CJumpButtonInput();
+    }
+
+    public virtual IAxisInput HorizontalAxisInput
+    {
+        get
+        {
+            return this.horizontalAxisInput;
+        }
+    }
+
+    public virtual IButtonInput JumpButtonInput
+    {
+        get
+        {
+            return this.jumpButtonInput;
+        }
+    }
+
+    private class CHorizontalAxisInput : IAxisInput
+    {
+        public float GetAxis()
+        {
+            return Input.GetAxis("Horizontal");
+        }
+    }
+
+    private class CJumpButtonInput : IButtonInput
+    {
+        public bool GetButton()
+        {
+            return Input.GetButton("Jump");
+        }
+
+        public bool GetButtonDown()
+        {
+            return Input.GetButtonDown("Jump");
+        }
+
+        public bool GetButtonUp()
+        {
+            return Input.GetButtonUp("Jump");
+        }
+    }
+}</code></pre>
+
+    <p><strong>MobileInputProvider</strong></p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class MobileInputProvider : MonoBehaviour, IInputProvider
+{
+    [SerializeField]
+    private VirtualJoystick leftJoystick = null;
+
+    private IAxisInput horizontalAxisInput;
+    private IButtonInput jumpButtonInput;
+
+    public virtual IAxisInput HorizontalAxisInput
+    {
+        get
+        {
+            return this.horizontalAxisInput;
+        }
+    }
+
+    public virtual IButtonInput JumpButtonInput
+    {
+        get
+        {
+            return this.jumpButtonInput;
+        }
+    }
+
+    public void Init()
+    {
+        this.horizontalAxisInput = new CHorizontalAxisInput(this.leftJoystick);
+        this.jumpButtonInput = new CJumpButtonInput();
+    }
+
+    private class CHorizontalAxisInput : IAxisInput
+    {
+        private VirtualJoystick leftJoystick;
+
+        public CHorizontalAxisInput(VirtualJoystick leftJoystick)
+        {
+            this.leftJoystick = leftJoystick;
+        }
+
+        public float GetAxis()
+        {
+            return this.leftJoystick.GetAxes().x;
+        }
+    }
+
+    private class CJumpButtonInput : IButtonInput
+    {
+        private int lastJumpTouchId;
+
+        public bool GetButton()
+        {
+            if (Input.touchCount > 0)
+            {
+                foreach (var touch in Input.touches)
+                {
+                    if ((touch.phase == TouchPhase.Stationary || touch.phase == TouchPhase.Moved) &amp;&amp;
+                        (touch.position.x > Screen.width / 2f) &amp;&amp;
+                        (touch.fingerId == this.lastJumpTouchId))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public bool GetButtonDown()
+        {
+            if (Input.touchCount > 0)
+            {
+                foreach (var touch in Input.touches)
+                {
+                    if (touch.phase == TouchPhase.Began &amp;&amp;
+                        touch.position.x > Screen.width / 2f)
+                    {
+                        this.lastJumpTouchId = touch.fingerId;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public bool GetButtonUp()
+        {
+            if (Input.touchCount > 0)
+            {
+                foreach (var touch in Input.touches)
+                {
+                    if (touch.phase == TouchPhase.Ended &amp;&amp;
+                        touch.position.x > Screen.width / 2f &amp;&amp;
+                        touch.fingerId == this.lastJumpTouchId)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+    }
+}</code></pre>
+
+    <h3>Another layer of abstraction</h3>
+
+    <p>In Unity if we want to get an axis we just do it like this.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">float horizontalAxis = Input.GetAxis("Horizontal");</code></pre>
+
+    <p>But we can't get the <strong>horizontal</strong> axis like that if we are on a mobile device. We have a <strong>MobileInputProvider</strong>, we just need a class that uses it.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public static class PlayerInput
+{
+    public static IInputProvider InputProvider { get; set; }
+
+    public static IAxisInput HorizontalAxisInput
+    {
+        get
+        {
+            return InputProvider.HorizontalAxisInput;
+        }
+    }
+
+    public static IButtonInput JumpButtonInput
+    {
+        get
+        {
+            return InputProvider.JumpButtonInput;
+        }
+    }
+}</code></pre>
+
+    <p>Now we can get the <strong>horizontal</strong> axis from a mobile device like this.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">PlayerInput.InputProvider = mobileInputProvider;
+float horizontalAxis = PlayerInput.HorizontalAxisInput.GetAxis();</code></pre>
+
+    <h3>Compound Input Provider</h3>
+
+    <p>But what if we want to be able to get input both from a keyboard and from a mobile device. Well we need a provider that gets input from both, but that will be kinda stupid, because we have them in separate, why create a third provider that is copy-paste from the first two? We just need to think of a smart way to combine both input providers. That is how we do it.</p>
+
+    <p>First we create an axis input that can get axes from many sources. We will call this one <strong>CompoundAxisInput</strong>. Here is the implementation.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class CompoundAxisInput : IAxisInput
+{
+    private const float AXIS_DEAD_ZONE = 0.2f;
+
+    private IAxisInput[] axisInputs;
+    private int lastPressedIndex;
+
+    public CompoundAxisInput() { }
+
+    public CompoundAxisInput(params IAxisInput[] axisInputs)
+    {
+        this.axisInputs = axisInputs;
+    }
+
+    public virtual float GetAxis()
+    {
+        float positiveAxis = 0f;
+        float negativeAxis = 0f;
+        if (this.axisInputs != null)
+        {
+            for (int i = 0; i &lt; this.axisInputs.Length; i++)
+            {
+                float value = this.axisInputs[i].GetAxis();
+                if (Mathf.Abs(value) > AXIS_DEAD_ZONE)
+                {
+                    this.lastPressedIndex = i;
+                }
+                else
+                {
+                    continue;
+                }
+
+                if (value &lt; 0f)
+                {
+                    negativeAxis = Mathf.Min(negativeAxis, value);
+                }
+                else
+                {
+                    positiveAxis = Mathf.Max(positiveAxis, value);
+                }
+            }
+        }
+
+        return positiveAxis + negativeAxis;
+    }
+
+    public IAxisInput GetLastPressed()
+    {
+        return this.axisInputs[this.lastPressedIndex];
+    }
+
+    public void AddAxisInput(IAxisInput axisInput)
+    {
+        if (this.axisInputs == null)
+        {
+            this.axisInputs = new IAxisInput[1];
+            this.axisInputs[0] = axisInput;
+        }
+        else
+        {
+            Array.Resize(ref this.axisInputs, this.axisInputs.Length + 1);
+            this.axisInputs[this.axisInputs.Length - 1] = axisInput;
+        }
+    }
+
+    public void ClearAxisInputs()
+    {
+        this.axisInputs = null;
+    }
+}</code></pre>
+
+    <p>It's an axis input that internally has an array of axis inputs. When we call the <strong>GetAxis()</strong> method, we find the most negative one and most positive one from all of the axis inputs and return the sum of them. That way if we press left on a keyboard and right on a joystick for example, the character will stay in one place, because the <strong>horizontal</strong> axis will be zero.</p>
+
+    <hr>
+
+    <p>Now we have to do the same for the button input. Lets call the class <strong>CompoundButtonInput</strong>.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class CompoundButtonInput : IButtonInput
+{
+    private IButtonInput[] buttonInputs;
+    private int lastPressedIndex;
+
+    public CompoundButtonInput() { }
+
+    public CompoundButtonInput(params IButtonInput[] buttonInputs)
+    {
+        this.buttonInputs = buttonInputs;
+    }
+
+    public virtual bool GetButton()
+    {
+        if (this.buttonInputs != null)
+        {
+            for (int i = 0; i &lt; this.buttonInputs.Length; i++)
+            {
+                if (this.buttonInputs[i].GetButton())
+                {
+                    this.lastPressedIndex = i;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public virtual bool GetButtonDown()
+    {
+        if (this.buttonInputs != null)
+        {
+            for (int i = 0; i &lt; this.buttonInputs.Length; i++)
+            {
+                if (this.buttonInputs[i].GetButtonDown())
+                {
+                    this.lastPressedIndex = i;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public virtual bool GetButtonUp()
+    {
+        if (this.buttonInputs != null)
+        {
+            for (int i = 0; i &lt; this.buttonInputs.Length; i++)
+            {
+                if (this.buttonInputs[i].GetButtonUp())
+                {
+                    this.lastPressedIndex = i;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public IButtonInput GetLastPressed()
+    {
+        return this.buttonInputs[this.lastPressedIndex];
+    }
+
+    public void AddButtonInput(IButtonInput buttonInput)
+    {
+        if (this.buttonInputs == null)
+        {
+            this.buttonInputs = new IButtonInput[1];
+            this.buttonInputs[0] = buttonInput;
+        }
+        else
+        {
+            Array.Resize(ref this.buttonInputs, this.buttonInputs.Length + 1);
+            this.buttonInputs[this.buttonInputs.Length - 1] = buttonInput;
+        }
+    }
+
+    public void ClearButtonInputs()
+    {
+        this.buttonInputs = null;
+    }
+}</code></pre>
+
+    <hr>
+
+    <p>Finally we create a <strong>CompoundInputProvider</strong>.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class CompoundInputProvider : IInputProvider
+{
+    private IInputProvider[] inputProviders;
+    private CompoundAxisInput horizontalAxisInput;
+    private CompoundButtonInput jumpButtonInput;
+
+    public CompoundInputProvider()
+        : this(null)
+    { }
+
+    public CompoundInputProvider(params IInputProvider[] inputProviders)
+    {
+        this.horizontalAxisInput = new CompoundAxisInput();
+        this.jumpButtonInput = new CompoundButtonInput();
+
+        if (inputProviders != null)
+        {
+            for (int i = 0; i &lt; inputProviders.Length; i++)
+            {
+                this.AddInputProvider(inputProviders[i]);
+            }
+        }
+    }
+
+    public virtual IAxisInput HorizontalAxisInput
+    {
+        get
+        {
+            return this.horizontalAxisInput;
+        }
+    }
+
+    public virtual IButtonInput JumpButtonInput
+    {
+        get
+        {
+            return this.jumpButtonInput;
+        }
+    }
+
+    public void AddInputProvider(IInputProvider inputProvider)
+    {
+        if (this.inputProviders == null)
+        {
+            this.inputProviders = new IInputProvider[1];
+            this.inputProviders[0] = inputProvider;
+        }
+        else
+        {
+            Array.Resize(ref this.inputProviders, this.inputProviders.Length + 1);
+            this.inputProviders[this.inputProviders.Length - 1] = inputProvider;
+        }
+
+        this.horizontalAxisInput.AddAxisInput(inputProvider.HorizontalAxisInput);
+        this.jumpButtonInput.AddButtonInput(inputProvider.JumpButtonInput);
+    }
+
+    public void ClearInputProviders()
+    {
+        this.inputProviders = null;
+        this.horizontalAxisInput.ClearAxisInputs();
+        this.jumpButtonInput.ClearButtonInputs();
+    }
+}</code></pre>
+
+    <hr>
+
+    <p>All that's left is to provide our <strong>PlayerInput</strong> class with the right <strong>CompoundInputProvider</strong>. I do this in an <strong>InputManager</strong> script.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class InputManager : MonoBehaviour
+{
+    [SerializeField]
+    private MobileInputProvider mobileInputProvider = null;
+
+    protected virtual void Awake()
+    {
+        this.InitInputProvider();
+    }
+
+    private void InitInputProvider()
+    {
+        CompoundInputProvider compoundInputProvider = new CompoundInputProvider();
+        if (this.mobileInputProvider != null)
+        {
+            this.mobileInputProvider.Init();
+            compoundInputProvider.AddInputProvider(this.mobileInputProvider);
+        }
+
+#if UNITY_EDITOR
+        compoundInputProvider.AddInputProvider(new KeyboardAndMouseInputProvider());
+#endif
+
+        PlayerInput.InputProvider = compoundInputProvider;
+    }
+}</code></pre>
+
+    <p>Now we are ready to use our <strong>PlayerInput</strong> class instead of the <strong>Input</strong> class that Unity gives us.</p>
+  </div>
+</article>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <p class="comment">// <a href="https://github.com/dbrizov/dbrizov.github.io" target="_blank" rel="noopener">view source</a></p>
+    <div class="footer-links">
+      <a href="../../../index.html">home</a>
+    </div>
+  </div>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+</body>
+</html>

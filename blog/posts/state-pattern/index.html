@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>State Pattern — Denis Rizov</title>
+<link rel="icon" type="image/png" href="../../../images/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="../../../index.html" class="brand"><span class="brand-bracket">&lt;</span><span class="brand-name">denis.rizov</span><span class="brand-bracket">/&gt;</span></a>
+    <ul class="nav-links">
+      <li><a href="../../../index.html#about">about</a></li>
+      <li><a href="../../../index.html#games">games</a></li>
+      <li><a href="../../../index.html#personal">personal</a></li>
+      <li><a href="../../../index.html#plugins">plugins</a></li>
+      <li><a href="../../index.html" class="is-active">blog</a></li>
+    </ul>
+  </div>
+</nav>
+<main>
+<article class="post">
+  <header class="post-header">
+    <p class="post-date"><a href="../../index.html" class="back-link">&larr; back</a> <time datetime="2016-03-13">2016-03-13</time></p>
+    <h1 class="post-title">State Pattern</h1>
+    <p class="post-meta"><span class="tag">C#</span> <span class="tag">Game Patterns</span></p>
+  </header>
+  <div class="post-content">
+    <p>Why do we need this pattern and when to use it? In order to show you we are first going to see some bad code, and then we are going to rewrite the code with the state pattern.</p>
+
+    <h2>Bad Code</h2>
+
+    <p>Imagine that we are working on a third person stealth game, and we need to implement the character and make him respond to user input. He can jump and duck.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class Character
+{
+    private bool isGrounded;
+    private bool isDucking;
+    private bool isJumping;
+
+    public void Update()
+    {
+        // Update the player depending on the private fields
+    }
+
+    public void HandleInput(Input input)
+    {
+        if (input == Input.PRESS_SPACE)
+        {
+            if (this.isGrounded &amp;&amp; !this.isDucking)
+            {
+                this.isJumping = true;
+                this.isGrounded = false;
+            }
+        }
+        else if (input == Input.PRESS_CTRL)
+        {
+            if (this.isGrounded)
+            {
+                this.isDucking = true;
+            }
+        }
+        else if (input == Input.RELEASE_CTRL)
+        {
+            if (this.isDucking)
+            {
+                this.isDucking = false;
+            }
+        }
+    }
+}</code></pre>
+
+    <p>At first glance this code is not written badly. When we press &ldquo;Space&rdquo; the character can jump only if he is grounded and not ducking. If we press &ldquo;Ctrl&rdquo; the character can duck only if he is grounded, not when he is jumping, and so on, and so on. Now imagine that the character can also swim, or even skydive like in Just Cause. Maybe he can also enter different vehicles (cars, jet planes). For all these states of the character we need different booleans &mdash; <code>isSwimming</code>, <code>isSkydiving</code>, <code>isInCar</code>, <code>isInJetPlane</code>. In all of these states the character has different input handling. If he is grounded for example and we press &ldquo;Space&rdquo; he will jump, but what if he is swimming, or he is in a car and we press &ldquo;Space&rdquo; again. Maybe while swimming the character will ascent, and while he is in a car he will activate the brakes of the car. Now imagine that the character can do many other things. Soon our <code>HandleInput(Input input)</code> and <code>Update()</code> methods will be a nightmare to extend and maintain. In such cases the use of state machines can save our lives.</p>
+
+    <h2>Finite State Machines</h2>
+
+    <p>Finite State Machines are very simple. They only sound fancy. We can visualize our current character logic like that.</p>
+
+    <img src="../../images/2016/03/state-machine.png" alt="State Machine">
+
+    <ol>
+      <li><strong>The machine has a fixed set of states</strong> &mdash; Grounded, Ducking and Jumping in our case</li>
+      <li><strong>Only one state can be active at a time</strong></li>
+      <li><strong>We can send input to the machine</strong> &mdash; in our case this is raw input from the user</li>
+      <li><strong>Each state has a set of transitions</strong> &mdash; each associated with an input and pointing to another state</li>
+    </ol>
+
+    <h2>Good Code - The State Pattern</h2>
+
+    <p>Basically, all we need to do is to implement a finite state machine in code. How do we do that? If you are doing it for the first time &mdash; it's hard. It's actually very easy. Once you see how to do it, you won't forget it.</p>
+
+    <hr>
+
+    <p>Let us first start by implementing an interface for all states. Lets name it <strong>ICharacterState</strong>.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public interface ICharacterState
+{
+    void OnEnter(Character character);
+
+    void OnExit(Character character);
+
+    void ToState(Character character, ICharacterState targetState);
+
+    void Update(Character character);
+
+    void HandleInput(Character character, Input input);
+}</code></pre>
+
+    <p><code>OnEnter</code> and <code>OnExit</code> are very useful, because we can execute some code when the character enters/exits a specific state &mdash; play a sound, change the animation of the character, etc. These methods will be called automatically when we make a call to the <code>ToState</code> method. In order to make it automated we need a base abstract class for all of the states. Lets name it <strong>CharacterStateBase</strong>. But first lets change our <strong>Character</strong> class like this.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class Character
+{
+    private ICharacterState state;
+
+    public ICharacterState State
+    {
+        get
+        {
+            return this.state;
+        }
+        set
+        {
+            this.state = value;
+        }
+    }
+
+    public void Update()
+    {
+        this.State.Update(this);
+    }
+
+    public void HandleInput(Input input)
+    {
+        this.State.HandleInput(this, input);
+    }
+
+    // Other code
+}</code></pre>
+
+    <p>The character has a state. In his <code>Update()</code> method we update his current state. Every state also has a different input handling. In the <code>HandleInput(Input input)</code> method we just make a call to the <code>HandleInput(Character character, Input input)</code> method of the current state.</p>
+
+    <hr>
+
+    <p>And now the <strong>CharacterStateBase</strong> class.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public abstract class CharacterStateBase : ICharacterState
+{
+    public virtual void OnEnter(Character character) { }
+
+    public virtual void OnExit(Character character) { }
+
+    public virtual void ToState(Character character, ICharacterState targetState)
+    {
+        character.State.OnExit(character);
+        character.State = targetState;
+        character.State.OnEnter(character);
+    }
+
+    public abstract void Update(Character character);
+
+    public abstract void HandleInput(Character character, Input input);
+}</code></pre>
+
+    <hr>
+
+    <p>All that is left is to implement the &ldquo;Grounded&rdquo;, &ldquo;Jumping&rdquo; and &ldquo;Ducking&rdquo; states.</p>
+
+    <hr>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class GroundedCharacterState : CharacterStateBase
+{
+    // Some code
+
+    public override void HandleInput(Character character, Input input)
+    {
+        if (input == Input.PRESS_SPACE)
+        {
+            this.ToState(character, STATE_JUMPING);
+        }
+        else if (input == Input.PRESS_CTRL)
+        {
+            this.ToState(character, STATE_DUCKING);
+        }
+
+        // More code
+    }
+
+    public override void Update(Character character)
+    {
+        // Some code
+    }
+}</code></pre>
+
+    <hr>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class JumpingCharacterState : CharacterStateBase
+{
+    // Some code
+
+    public override void HandleInput(Character character, Input input)
+    {
+        // Some code
+    }
+
+    public override void Update(Character character)
+    {
+        if (character.IsGrounded())
+        {
+            this.ToState(character, STATE_GROUNDED);
+        }
+
+        // More code
+    }
+}</code></pre>
+
+    <hr>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class DuckingCharacterState : CharacterStateBase
+{
+    // Some code
+
+    public override void HandleInput(Character character, Input input)
+    {
+        if (input == Input.RELEASE_CTRL)
+        {
+            this.ToState(character, STATE_GROUNDED);
+        }
+
+        // More code
+    }
+
+    public override void Update(Character character)
+    {
+        // Some code
+    }
+}</code></pre>
+
+    <p>The <code>STATE_GROUNDED</code>, <code>STATE_JUMPING</code> and <code>STATE_DUCKING</code> are just references to instances of <code>GroundedCharacterState</code>, <code>JumpingCharacterState</code> and <code>DuckingCharacterState</code>. You can create them anywhere you want. I personally like to create <code>static readonly</code> instances in the <code>CharacterStateBase</code> class.</p>
+
+    <hr>
+
+    <p>I personally love this pattern. It's very easy to extend the behavior of the character, we just need to create a bunch of different states. Once created we don't touch them anymore. But as good as it is, there are also problems.</p>
+
+    <h2>Concurrent State Machines</h2>
+
+    <p>Lets imagine that the character is running. He is in a running state. But can he run and shoot at the same time? The problem is that only one state can be active at a time. The character can't run and shoot at the same time, but we want him to be able to do so. One solution is to create a state that combines both the running and the shooting states. That however is not a very good solution. Imagine that the character can shoot while jumping, ducking, walking. Even worse &mdash; the character can shoot with different types of weapons (pistols, rifles, grenade launchers). The input handling for these weapons is a little different from one another. If we are to create that many combined states, we will end up overkilling the architecture of our code. A better solution is to create a secondary state, that can be updated separately from the main state. The character class will look like this.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class Character
+{
+    private ICharacterState state;
+    private ICharacterState equipmentState;
+
+    public void Update()
+    {
+        this.State.Update(this);
+        this.EquipmentState.Update(this);
+    }
+
+    public void HandleInput(Input input)
+    {
+        this.State.HandleInput(this, input);
+        this.EquipmentState.HandleInput(this, input);
+    }
+
+    // Other code
+}</code></pre>
+
+    <h2>When to Use</h2>
+
+    <p>There is not a strict rule when to use it. This applies to all patterns in general. You need to ask yourself three questions:</p>
+
+    <ul>
+      <li>Do you have an entity whose behavior changes based on some internal state?</li>
+      <li>Can that state be rigidly divided into one of a relatively small number of distinct options?</li>
+      <li>Does the entity respond to a series of inputs or events over time?</li>
+    </ul>
+
+    <p>If the answer to all questions is a &ldquo;YES&rdquo; then you might consider using this pattern.</p>
+
+    <p>I've used it for simple AI behaviors. You can actually check this <a href="https://www.youtube.com/watch?v=4FSeuQ7UjrM" target="_blank" rel="noopener">Video Tutorial</a> from <strong>Unity Technologies</strong>. A guy shows how to implement a basic state machine for AI. However if you want to create a more complex AI, I advise you to use <strong>Behavior Trees</strong>. I've actually never used them myself, but I know that they are the right way to do more advanced AI.</p>
+
+    <p>I've also used the state pattern when I was implementing the UI in the main menu of a certain game. I had a bunch of screens and you can go from one screen to another, based on some user input. Each state is a different UI Screen. Based on the user input I just make transitions between the screens.</p>
+  </div>
+</article>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <p class="comment">// <a href="https://github.com/dbrizov/dbrizov.github.io" target="_blank" rel="noopener">view source</a></p>
+    <div class="footer-links">
+      <a href="../../../index.html">home</a>
+    </div>
+  </div>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Queue Implementation - C# — Denis Rizov</title>
+<link rel="icon" type="image/png" href="../../../images/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="../../../index.html" class="brand"><span class="brand-bracket">&lt;</span><span class="brand-name">denis.rizov</span><span class="brand-bracket">/&gt;</span></a>
+    <ul class="nav-links">
+      <li><a href="../../../index.html#about">about</a></li>
+      <li><a href="../../../index.html#games">games</a></li>
+      <li><a href="../../../index.html#personal">personal</a></li>
+      <li><a href="../../../index.html#plugins">plugins</a></li>
+      <li><a href="../../index.html" class="is-active">blog</a></li>
+    </ul>
+  </div>
+</nav>
+<main>
+<article class="post">
+  <header class="post-header">
+    <p class="post-date"><a href="../../index.html" class="back-link">&larr; back</a> <time datetime="2013-05-27">2013-05-27</time></p>
+    <h1 class="post-title">Dynamic Queue Implementation - C#</h1>
+    <p class="post-meta"><span class="tag">C#</span> <span class="tag">Data Structures</span></p>
+  </header>
+  <div class="post-content">
+    <p>A dynamic queue is a queue that is implemented with nodes. Nodes consist of two things: value and link to another node.</p>
+
+    <p>The following image illustrates the implementation:</p>
+
+    <img src="../../images/2013/05/dynamic-queue.png" alt="dynamic-queue">
+
+    <p>The most left node is the front of the queue, and the most right one is the back of the queue. Every node is connected to the one right of it. The back of the queue points to null.</p>
+
+    <p>You can see the implementation of the queue <a href="https://github.com/dbrizov/Custom-Data-Structures-CSharp/blob/master/CustomDataStructures/CustomDataStructures/CustomQueue.cs" target="_blank" rel="noopener">here</a>.<br>
+    Lets jump to the explanation.</p>
+
+    <hr>
+
+    <p>First lets see how the Node is implemented.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">private class Node
+{
+    public T Item { get; set; }
+    public Node Next { get; set; }
+
+    public Node(T item)
+    {
+        this.Item = item;
+        this.Next = null;
+    }
+
+    public Node(T item, Node previous)
+    {
+        this.Item = item;
+        this.Next = null;
+        previous.Next = this;
+    }
+}</code></pre>
+
+    <p>We have an Item which represents the value of the node. The link is a simple reference to a node and is called Next. We also have two constructors. One that creates a node with some item and has a pointer to null. The other one creates the same node, but the difference is that a previous node is linked to the one that was just created. The Node class is a private class in the Queue class which I called CustomQueue.</p>
+
+    <hr>
+
+    <p>Now lets jump to the CustomQueue.<br>
+    Lets see what fields, constructors and properties we have.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">private Node front;
+private Node back;
+private int count;
+
+public CustomQueue()
+{
+    this.front = null;
+    this.back = null;
+    this.count = 0;
+}
+
+public int Count
+{
+    get
+    {
+        return this.count;
+    }
+}</code></pre>
+
+    <p>We have references(pointers) to the front and the back of the queue. There is a count field that has a Count property with getter only (we don't want to mess up the count from the outside). We also have only a single default constructor that makes an empty queue by initializing the front and the back with null and count with 0.</p>
+
+    <hr>
+
+    <p>Now lets see the basic methods.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public void Enqueue(T item)
+{
+    if (this.front == null)
+    {
+        // We have empty queue
+        this.front = new Node(item);
+        this.back = this.front;
+    }
+    else
+    {
+        Node newNode = new Node(item, this.back);
+        this.back = newNode;
+    }
+
+    this.count++;
+}</code></pre>
+
+    <p>The &ldquo;Enqueue&rdquo; method adds a new element to the front of the queue. First we check if the queue is empty (if so we make a queue with only one node that points to null). If the queue is not empty, we create a new node and tell the back of the queue to start pointing at the node we've just created. This is accomplished with the second constructor. We have to tell that the new back of the queue is the new node. Last we increment the count.</p>
+
+    <p>Consider the following code:</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">CustomQueue&lt;int&gt; queue = new CustomQueue&lt;int&gt;();
+queue.Enqueue(1);
+queue.Enqueue(2);
+queue.Enqueue(3);</code></pre>
+
+    <p>In the memory that looks much like this:</p>
+
+    <img src="../../images/2013/05/enqueue.png" alt="enqueue">
+
+    <hr>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public T Dequeue()
+{
+    if (this.count == 0)
+    {
+        // We have empty queue
+        throw new InvalidOperationException("The queue is empty");
+    }
+
+    T result = this.front.Item;
+    this.front = this.front.Next;
+    this.count--;
+
+    return result;
+}</code></pre>
+
+    <p>The &ldquo;Dequeue&rdquo; method removes the front of the queue and returns the value of it. We first make a check if the queue is empty (if so we throw an InvalidOperationExceltion). If the queue is not empty, then we remove the front. It's simple, we just initialize the front with it's link. The garbage collector will take care of the node that is discarded from the queue. We also have to decrement the count and return the result (the value of the removed element).</p>
+
+    <p>Consider the following code:</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">CustomQueue&lt;int&gt; queue = new CustomQueue&lt;int&gt;();
+queue.Enqueue(1);
+queue.Enqueue(2);
+queue.Enqueue(3);
+
+queue.Dequeue();
+queue.Dequeue();
+queue.Dequeue();</code></pre>
+
+    <p>The dequeue process should look something like this:</p>
+
+    <img src="../../images/2013/05/dequeue.png" alt="dequeue">
+
+    <hr>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public T Peek()
+{
+    if (this.count == 0)
+    {
+        // We have empty queue
+        throw new InvalidOperationException("The queue is empty");
+    }
+
+    return this.front.Item;
+}</code></pre>
+
+    <p>The &ldquo;Peek&rdquo; method gets the value of the front of the queue. Again there is a check for empty queue and an exception throw if it's empty.</p>
+
+    <hr>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public void Clear()
+{
+    this.front = null;
+    this.back = null;
+    this.count = 0;
+}</code></pre>
+
+    <p>The &ldquo;Clear&rdquo; method clears the queue (makes it empty). It's just like the constructor. We initialize the front and the back with null and the count with 0.</p>
+
+    <hr>
+
+    <p>CustomQueue implements the ICloneable interface. It's useful to clone the queue sometimes.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public object Clone()
+{
+    CustomQueue&lt;T&gt; clone = new CustomQueue&lt;T&gt;();
+
+    Node currentNode = this.front;
+    while (currentNode != null)
+    {
+        // We have non-empty queue
+        clone.Enqueue(currentNode.Item);
+        currentNode = currentNode.Next;
+    }
+
+    return clone;
+}</code></pre>
+
+    <p>The &ldquo;Clone&rdquo; method creates a deep copy of the queue. How do we do that? We create an empty queue named &ldquo;clone&rdquo;. If the original queue is empty we just return the empty clone queue. If it is not empty however, we have to make the deep copy. It's very simple. We have a reference(node) called &ldquo;currentNode&rdquo; that first points to the front of the original queue. This node helps us to walk through the original queue from the front to the back. We say this: &ldquo;while currentNode != null (we haven't reached the end of the queue) - enqueue the value of the current node we've reached into the clone queue and go to the next node of the original queue&rdquo;. Then we return the clone.</p>
+
+    <p>It looks like this:</p>
+
+    <img src="../../images/2013/05/queue-clone-process.png" alt="queue-clone-process">
+
+    <hr>
+
+    <p>I've also added some extension methods in the CustomQueue class. They are helpful, plus helped me for the unit tests.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public override string ToString()
+{
+    StringBuilder result = new StringBuilder();
+
+    Node currentNode = this.front;
+    while (currentNode != null)
+    {
+        result.Append(currentNode.Item);
+        currentNode = currentNode.Next;
+    }
+
+    return result.ToString();
+}
+
+public T[] ToArray()
+{
+    T[] result = new T[this.count];
+
+    Node currentNode = this.front;
+    for (int i = 0; i &lt; result.Length; i++)
+    {
+        result[i] = currentNode.Item;
+        currentNode = currentNode.Next;
+    }
+
+    return result;
+}</code></pre>
+
+    <p>&ldquo;ToString&rdquo; and &ldquo;ToArray&rdquo; are much like the clone method. We are walking through the original queue and the value of the current node we've reached is appended in a StringBuilder in the first case, and put in an array in the second case.</p>
+
+    <hr>
+
+    <p>The CustomQueue also implements the <code>IEnumerable&lt;T&gt;</code> interface so that the queue can be walked with a foreach loop.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public IEnumerator&lt;T&gt; GetEnumerator()
+{
+    Node currentNode = this.front;
+    while (currentNode != null)
+    {
+        T result = currentNode.Item;
+        currentNode = currentNode.Next;
+
+        yield return result;
+    }
+}
+
+IEnumerator IEnumerable.GetEnumerator()
+{
+    return this.GetEnumerator();
+}</code></pre>
+
+    <p>The IEnumerable and IEnumerator interfaces are hard to explain and this post does not concern them, so I will stop here. Maybe I will make a post on how to implement these interfaces the hard way and the easy way (here I've used the easy way). That's all. Hope it was useful.</p>
+  </div>
+</article>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <p class="comment">// <a href="https://github.com/dbrizov/dbrizov.github.io" target="_blank" rel="noopener">view source</a></p>
+    <div class="footer-links">
+      <a href="../../../index.html">home</a>
+    </div>
+  </div>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+</body>
+</html>

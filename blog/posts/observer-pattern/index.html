@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Observer Pattern — Denis Rizov</title>
+<link rel="icon" type="image/png" href="../../../images/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="../../../index.html" class="brand"><span class="brand-bracket">&lt;</span><span class="brand-name">denis.rizov</span><span class="brand-bracket">/&gt;</span></a>
+    <ul class="nav-links">
+      <li><a href="../../../index.html#about">about</a></li>
+      <li><a href="../../../index.html#games">games</a></li>
+      <li><a href="../../../index.html#personal">personal</a></li>
+      <li><a href="../../../index.html#plugins">plugins</a></li>
+      <li><a href="../../index.html" class="is-active">blog</a></li>
+    </ul>
+  </div>
+</nav>
+<main>
+<article class="post">
+  <header class="post-header">
+    <p class="post-date"><a href="../../index.html" class="back-link">&larr; back</a> <time datetime="2016-04-21">2016-04-21</time></p>
+    <h1 class="post-title">Observer Pattern</h1>
+    <p class="post-meta"><span class="tag">C#</span> <span class="tag">Game Patterns</span></p>
+  </header>
+  <div class="post-content">
+    <p>What is the observer pattern used for, and why do we need it? If you've heard of the <a href="https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller" target="_blank" rel="noopener">Model-View-Controller</a> architectural pattern, let me tell you that underlying that is the Observer pattern. Observer is so widely used that java put it in its core library (<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Observer.html" target="_blank" rel="noopener">java.util.Observer</a>) and C# baked it right into the language (the <a href="https://msdn.microsoft.com/en-us/library/8627sbea.aspx" target="_blank" rel="noopener">event</a> keyword).</p>
+
+    <p>In game development we have so many classes that do very different things. It's good to keep them as decoupled as possible, but sometimes that is very hard. The observer pattern is a great tool to keep your code decoupled very easily.</p>
+
+    <h2>Achievement System</h2>
+
+    <p>Let's say that we want to implement an achievement system. We can have so many different achievements like &ldquo;Make 20 consecutive headshots&rdquo;, &ldquo;Beat the game under 3 hours&rdquo;, &ldquo;Fall from high height without dying&rdquo;. Unlocking these achievements means that we have to make calls to some methods in many different places in our code. Let's take for example the &ldquo;Fall from high height without dying&rdquo;. As you can guess this achievement is somehow tied to the Physics Engine, but do we really want to see a call to <code>AchievementsManager.Unlock(Achievement.FallFromHighHeightWithoutDying)</code> right in the middle of our collision detection or something? How do we avoid that?</p>
+
+    <p>That's what the observer pattern is for. It lets one piece of code announce that something interesting happened without actually caring who receives the notification.</p>
+
+    <p>Imagine that our game world consists of entities. The interface for our entities is something like this:</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public interface IEntity
+{
+    void PhysicsUpdate();
+
+    // Other methods
+}</code></pre>
+
+    <p>The Physics Engine is responsible to update the physics of all entities in the game world. Our character is also an entity, and his <code>PhysicsUpdate()</code> method may look something like this:</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class Character : IEntity
+{
+    public virtual void PhysicsUpdate()
+    {
+        // Apply gravity and stuff...
+
+        if (this.FellFromHighHeightWithoutDying())
+        {
+            AchievementsManager.Unlock(Achievement.FallFromHighHeightWithoutDying);
+        }
+    }
+
+    // Other code...
+}</code></pre>
+
+    <p>We want to get rid of the call that unlocks the achievement through our <code>AchievementsManager</code>, because this way we couple the achievements system with our character. We are going to replace it with a call to another method:</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">NotifyObservers(this, Event.FallFromHighHeightWithoutDying);</code></pre>
+
+    <p>This single line of code just says: &ldquo;Look, I don't know if anybody cares, but <strong>this</strong> entity just fell from high height without dying&rdquo;. If someone cares however, he knows what to do. That someone is actually the observer. There can also be more than one observer, but let's not get ahead of ourselves. Now we are decoupled from the <code>AchievementsManager</code>, but where did we actually get the <code>NotifyObservers</code> method from? All I can say is that it's part of the big picture. Now lets draw that picture.</p>
+
+    <h3>The Observer</h3>
+
+    <p>Let's start with the observer class. All observers observe for something interesting to happen. The interface for all observers is as follows.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public interface IObserver
+{
+    void OnNotify(IEntity entity, Event ev);
+}</code></pre>
+
+    <p>In our case the observer is the <code>AchievementsManager</code>.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class AchievementsManager : IObserver
+{
+    public void OnNotify(IEntity entity, Event ev)
+    {
+        switch (ev)
+        {
+            case Event.FallFromHighHeightWithoutDying:
+                bool isEntityCharacter = (entity as Character) != null;
+                if (isEntityCharacter)
+                {
+                    this.UnlockAchievement(Achievement.FallFromHighHeightWithoutDying);
+                }
+
+                break;
+
+            // Other cases...
+        }
+    }
+
+    private void UnlockAchievement(Achievement achievement)
+    {
+        // Unlock if not already unlocked...
+    }
+}</code></pre>
+
+    <h3>The Observable Objects</h3>
+
+    <p>The observable objects are the objects that are being observed by observers. These objects must also notify the observers if anything interesting happened. Let's implement the interface for all observable objects. We need to be able to add, remove and notify any observers.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public interface IObservable
+{
+    void AddObserver(IObserver observer);
+
+    void RemoveObserver(IObserver observer);
+
+    void NotifyObservers(IEntity entity, Event ev);
+}</code></pre>
+
+    <p>In our case the observable object is our <code>Character</code>.</p>
+
+<pre class="code-block-post" data-lang="C#"><code class="language-csharp">public class Character : IEntity, IObservable
+{
+    private List&lt;IObserver&gt; observers;
+
+    // IEntity interface implementation
+    public virtual void PhysicsUpdate()
+    {
+        // Apply gravity and stuff...
+
+        if (this.FellFromHighHeightWithoutDying())
+        {
+            this.NotifyObservers(this, Event.FallFromHighHeightWithoutDying);
+        }
+    }
+    // END IEntity interface implementation
+
+    // IObservable interface implementation
+    public virtual void AddObserver(IObserver observer)
+    {
+        this.observers.Add(observer);
+    }
+
+    public virtual void RemoveObserver(IObserver observer)
+    {
+        this.observers.Remove(observer);
+    }
+
+    public virtual void NotifyObservers(IEntity entity, Event ev)
+    {
+        foreach (var observer in this.observers)
+        {
+            observer.OnNotify(entity, ev);
+        }
+    }
+    // END IObservable interface implementation
+}</code></pre>
+
+    <p>Now you see how it works. Our character is being observed by the achievement system. However, he actually doesn't know that. He only knows that maybe he is being or is not being observed (sounds spooky :D). Either way, he must notify his observers (if any) when something interesting happens. The good thing is that he actually doesn't know the true faces of his observers. He only has a list of references to instances of some interface. In this list our <code>AchievementsManager</code> is present, because the manager needs to know when the character falls from high height without dying. There is no problem for the <code>AchievementsManager</code> to know about the existence of our character, the problem is when our character knows about the manager. However, that problem is no more thanks to the observer pattern.</p>
+
+    <h2>Deleting Observers</h2>
+
+    <p>If you are using C# for a scripting language, or any language with garbage collection you must be wary of memory leaks. What do I mean? Let's say for example that we have an observer (UI Screen) that observes some stats of our main character. When the player displays this UI screen, it's added to the list of observers of the character, so when the stats change the UI screen is notified and updated. Let's say the player closes this screen. The screen is not visible anymore. However the garbage collector will not delete it. You know why? Because we didn't remove the observer from the list of observers. Our main character has a reference to the UI screen and the GC will not delete it.</p>
+
+    <p><strong>If some observer has done it's job and is not needed anymore, make sure that not a single observable object has a reference to it. Otherwise the observer won't be garbage collected.</strong></p>
+  </div>
+</article>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <p class="comment">// <a href="https://github.com/dbrizov/dbrizov.github.io" target="_blank" rel="noopener">view source</a></p>
+    <div class="footer-links">
+      <a href="../../../index.html">home</a>
+    </div>
+  </div>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+</body>
+</html>

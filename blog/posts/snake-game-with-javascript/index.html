@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake Game with JavaScript — Denis Rizov</title>
+<link rel="icon" type="image/png" href="../../../images/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../css/style.css">
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="../../../index.html" class="brand"><span class="brand-bracket">&lt;</span><span class="brand-name">denis.rizov</span><span class="brand-bracket">/&gt;</span></a>
+    <ul class="nav-links">
+      <li><a href="../../../index.html#about">about</a></li>
+      <li><a href="../../../index.html#games">games</a></li>
+      <li><a href="../../../index.html#personal">personal</a></li>
+      <li><a href="../../../index.html#plugins">plugins</a></li>
+      <li><a href="../../index.html" class="is-active">blog</a></li>
+    </ul>
+  </div>
+</nav>
+<main>
+<article class="post">
+  <header class="post-header">
+    <p class="post-date"><a href="../../index.html" class="back-link">&larr; back</a> <time datetime="2013-05-26">2013-05-26</time></p>
+    <h1 class="post-title">Snake Game with JavaScript</h1>
+    <p class="post-meta"><span class="tag">Games</span> <span class="tag">JavaScript</span></p>
+  </header>
+  <div class="post-content">
+    <p>I will show you how to make a snake game very easy with pure JavaScript and Canvas. Here's the <a href="http://htmlpreview.github.io/?https://github.com/dbrizov/TelerikHomeworks/blob/master/JavaScript/JS%20Part%202/JS%20APIs%20HW/06.%20Snake/snake.html" target="_blank" rel="noopener">demo</a> and the full <a href="https://github.com/dbrizov/TelerikHomeworks/tree/master/JavaScript/JS%20Part%202/JS%20APIs%20HW/06.%20Snake" target="_blank" rel="noopener">source</a></p>
+
+    <p>I will explain about the score system last. Lets first see how the snake is implemented. First of all it's good to place the full JavaScript code into a clojure. That way all the variables are not global.</p>
+
+    <p>It should look something like that:</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">(function () {
+    // The full source here
+}());</code></pre>
+
+    <hr>
+
+    <p>Ok now. Lets start. What do we need for a snake game? We need a queue (for the snake body). I've made a simple queue implementation that looks like this:</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">function Queue() {
+    var that = this;
+    that.arr = [];
+}
+
+Queue.prototype = {
+    constructor: Queue,
+
+    enqueue: function (elem) {
+        this.arr.push(elem);
+    },
+
+    dequeue: function () {
+        var retValue = this.arr[0];
+        var newArr = new Array(this.arr.length - 1);
+        for (var i = 0; i &lt; newArr.length; i++) {
+            newArr[i] = this.arr[i + 1];
+        }
+
+        this.arr = newArr;
+        return retValue;
+    },
+
+    getFirstElem: function () {
+        return this.arr[0];
+    },
+
+    getLastElem: function () {
+        return this.arr[this.arr.length - 1];
+    },
+
+    elementAt: function (index) {
+        return this.arr[index];
+    },
+
+    length: function () {
+        return this.arr.length;
+    }
+}</code></pre>
+
+    <p>As you can see it's not a basic queue implementation. We have functions to get elements at any index, to get the first and last elements. I don't think there is something special about it. Just a queue.</p>
+
+    <hr>
+
+    <p>We also need coordinates. You can consider the playfield as a coordinate system. You can think of the &ldquo;Coords&rdquo; class as a &ldquo;Vector&rdquo; class.</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">function Coords(x, y) {
+    var that = this;
+    that.x = x * 10;
+    that.y = y * 10;
+}</code></pre>
+
+    <p>Ok now. You may ask why the &ldquo;x&rdquo; and &ldquo;y&rdquo; are multiplied by 10?<br>
+    It's simple. The coordinates are actually pixels on the screen. If the step of the snake is only 1 pixel it will be almost impossible to tell that the snake even moved. That's why I made the step 10 pixels. When the snake head moves from coordinates (10, 20) to (20, 20) you will definitely see it moving. This is a bad approach, because the constructor is modifying the values, we just gave him. I am making this for simplicity. Just note that internally the values are multiplied by 10.</p>
+
+    <hr>
+
+    <p>Ok. We can't make a snake game without a snake can we?</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">function Snake(x, y, bodyLength) {
+    var that = this;
+    that.snakeBody = new Queue();
+    for (var i = 0; i &lt; bodyLength; i++) {
+        that.snakeBody.enqueue(new Coords(x + i, y));
+    }
+
+    that.currentDirection = new Coords(1, 0);
+    that.head = that.snakeBody.getLastElem();
+}
+
+Snake.prototype = {
+    constructor: Snake,
+
+    getHead: function () {
+        return this.head;
+    },
+
+    getNextHead: function () {
+        var nextHead =
+            new Coords(
+                parseInt(this.head.x + this.currentDirection.x) / 10,
+                parseInt(this.head.y + this.currentDirection.y) / 10
+            );
+
+        return nextHead;
+    },
+
+    move: function () {
+        var nextHead = this.getNextHead();
+        this.snakeBody.enqueue(nextHead);
+        this.snakeBody.dequeue();
+
+        this.head = nextHead;
+    },
+
+    turnLeft: function () {
+        if (this.currentDirection.x !== 1 &amp;&amp; this.currentDirection.y !== 0) {
+            var leftDirection = new Coords(-1, 0);
+            this.currentDirection = leftDirection;
+        }
+    },
+
+    turnRight: function () {
+        if (this.currentDirection.x !== -1 &amp;&amp; this.currentDirection.y !== 0) {
+            var rightDirection = new Coords(1, 0);
+            this.currentDirection = rightDirection;
+        }
+    },
+
+    turnUp: function () {
+        if (this.currentDirection.x !== 0 &amp;&amp; this.currentDirection !== 1) {
+            var upDirection = new Coords(0, -1);
+            this.currentDirection = upDirection;
+        }
+    },
+
+    turnDown: function () {
+        if (this.currentDirection.x !== 0 &amp;&amp; this.curentDirection !== -1) {
+            var downDirection = new Coords(0, 1);
+            this.currentDirection = downDirection;
+        }
+    }
+}</code></pre>
+
+    <p>Lets see what we have in the constructor?<br>
+    We have a snake body, which is a queue of coordinates. The snake also has a head and current direction. The current direction is also a coordinate. All of the possible directions are:</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">var leftDirection = new Coords(-1, 0);
+var rightDirection = new Coords(1, 0);
+var upDirection = new Coords(0, -1);
+var downDirection = new Coords(0, 1);</code></pre>
+
+    <p>It's very simple. The left direction has x = -1 and y = 0. The coordinate system is a normal coordinate system (just how you know it from Math). If the snake head is at coordinates (5, 5) and we add the leftDirection speed vector to it, the snake head will go to coordinates (4, 5). That's the secret of mooving objects in a coordinate system. However the snake moves differently. I will explain when the time comes.</p>
+
+    <hr>
+
+    <p>First lets see what methods(functions) the snake has:</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">getHead: function () {
+    return this.head;
+}</code></pre>
+
+    <p>There is not need to tell you what this function does.</p>
+
+    <hr>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">getNextHead: function () {
+    var nextHead =
+        new Coords(
+            parseInt(this.head.x + this.currentDirection.x) / 10,
+            parseInt(this.head.y + this.currentDirection.y) / 10
+        );
+
+    return nextHead;
+}</code></pre>
+
+    <p>This function returnes the next head of the snake. What does that mean? At any state of the game the snake has a current direction. Lets imagine that the snake head is at coordinates (5, 5) and the currentDirection is (-1, 0). The next head of the snake will be on (5, 5) + (-1, 0) = (4, 5) coordinates. The getNextHead function is needed because we want to know if the snake will reach it's body or one of the side wall before it actually happened. This function helps us in many ways (even for the moving of the snake). You may ask why I am dividing the the &ldquo;x&rdquo; and &ldquo;y&rdquo; coordinates of the nextHead by 10? Do you remember that the coordinates are actually multiplied by 10? If we say &ldquo;var nextHead = new Coords(4, 5)&rdquo; the coordinates will actually be (40, 50). We want them to be (4, 5). So we are creating the nextHead like this &ldquo;var nextHead = new Coords(0.4, 0.5)&rdquo;. That's all.</p>
+
+    <hr>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">move: function () {
+    var nextHead = this.getNextHead();
+    this.snakeBody.enqueue(nextHead);
+    this.snakeBody.dequeue();
+
+    this.head = nextHead;
+}</code></pre>
+
+    <p>Ok, we've finally reached the moving of the snake. It's tricky here. First of all you have to understand this. The snake head is not the first element of the queue, it's actually the last element. The tail of the snake is the first element of the queue. Let me explain. When we enqueue a new element to the queue, it is put at the end of queue. When we dequeue an element from the queue, the first element is removed from the queue. I think you are starting to figure it out. How does the snake move? First we want to get the next head of the snake. We already have a nice function for that. We now have the next head. The next thing to do is to put it in the snake's body &ldquo;this.snakeBody.enqueue(nextHead)&rdquo;. Now we have moved the snake. The problem is that the snake is actually bigger now (we just added a new head). So we remove the end of the tail &ldquo;this.snakeBody.dequeue()&rdquo;. The next step to do is to assign the snake's head to the new head &ldquo;this.head = nextHead&rdquo;. That's how the snake moves. I hope you understood it.</p>
+
+    <hr>
+
+    <p>Now comes the &ldquo;change direction functions&rdquo;.<br>
+    I will explain only the &ldquo;turnLeft()&rdquo; function. The others are analogous.</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">turnLeft: function () {
+    if (this.currentDirection.x !== 1 &amp;&amp; this.currentDirection.y !== 0) {
+        // currentDirection != rightDirection
+        var leftDirection = new Coords(-1, 0);
+        this.currentDirection = leftDirection;
+    }
+}</code></pre>
+
+    <p>You may ask why it is so complex? Well we can't just say &ldquo;this.currentDirection = leftDirection&rdquo;. If the current direction is different from rightDirection, then it's fine. Lets imagine that the currentDirection = rightDirection. If we change it to left the snake head will hit it's body. That's why we have a restriction. If the snake current direction is not right direction, then change it, else don't do anything.</p>
+
+    <hr>
+
+    <p>So far, so good.<br>
+    We need food. The snake needs to eat.</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">function Food(width, height) {
+    var minWidth = 10;
+    var maxWidth = width - 10;
+    var minHeight = 10;
+    var maxHeight = height - 10;
+
+    var x = parseInt((Math.random() * (maxWidth - minWidth) + minWidth) / 10);
+    var y = parseInt((Math.random() * (maxHeight - minHeight) + minHeight) / 10);
+
+    this.coords = new Coords(x, y);
+}</code></pre>
+
+    <p>As you can see the food has coordinates too. The thing is that they must be generated randomly. The food can be generate anywhere on the screen, we however want the food to be generated in the playfield. That's why we pass as arguments the width and the height of the field. &ldquo;minWidth = 10&rdquo;, because the field has borders that are exactly 10 pixels wide. The other min and max widths and heights are analogous. I've made everything in the game 10 pixels wide. You already know why we divide the &ldquo;x&rdquo; and &ldquo;y&rdquo; coordinates by 10.</p>
+
+    <hr>
+
+    <p>Now we have almost everything we need for a snake game. What we don't have is a renderer. For the rendering we'll use canvas. Canvas is a JavaScript API capable of visualizing 2D ad 3D graphics in the browsed. 3D is not fully implemented yet, but for a snake game 2D is just fine. You can learn more about canvas in <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Canvas/Tutorial" target="_blank" rel="noopener">Developer Mozilla</a>.</p>
+
+    <p>Lets see what functions we have:</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">function drawField(ctx, width, height) {
+    ctx.save();
+
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = "#00f";
+    ctx.strokeStyle = "#000";
+
+    // Draws the upper and lower borders
+    for (var i = 0; i &lt; width; i += 10) {
+        ctx.fillRect(i, 0, 10, 10);
+        ctx.strokeRect(i, 0, 10, 10);
+
+        ctx.fillRect(i, height - 10, 10, 10);
+        ctx.strokeRect(i, height - 10, 10, 10);
+    }
+
+    // Draws the left and right borders
+    for (var i = 0; i &lt; height; i += 10) {
+        ctx.fillRect(0, i, 10, 10);
+        ctx.strokeRect(0, i, 10, 10);
+
+        ctx.fillRect(width - 10, i, 10, 10);
+        ctx.strokeRect(width - 10, i, 10, 10);
+    }
+
+    ctx.restore();
+}</code></pre>
+
+    <p>This function draws the playfield. It fills the background color and draws the border. The border consists of many small squares. You can learn how to use canvas in the link I gave you.</p>
+
+    <hr>
+
+    <p>The next is the drawing of the food.</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">function drawFood(ctx, food) {
+    ctx.save();
+
+    ctx.fillStyle = "#0f0";
+    ctx.strokeStyle = "#000";
+    ctx.fillRect(food.coords.x, food.coords.y, 10, 10);
+    ctx.strokeRect(food.coords.x, food.coords.y, 10, 10);
+
+    ctx.restore();
+}</code></pre>
+
+    <p>We just take the food's coordinates and fill a 10x10 pixels rectangle there.</p>
+
+    <hr>
+
+    <p>And of course the drawing of the snake:</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">function drawSnake(ctx, snake) {
+    ctx.save();
+
+    ctx.fillStyle = "#f00";
+    ctx.strokeStyle = "#000";
+
+    var snakeBody = snake.snakeBody;
+    for (var i = 0; i &lt; snakeBody.length(); i++) {
+        var snakeElem = snakeBody.elementAt(i);
+        ctx.fillRect(snakeElem.x, snakeElem.y, 10, 10);
+        ctx.strokeRect(snakeElem.x, snakeElem.y, 10, 10);
+    }
+
+    ctx.restore();
+}</code></pre>
+
+    <p>For each element in the snake's body we fill a 10x10 rectangle at it's coordinates.</p>
+
+    <hr>
+
+    <p>Next thing we need is the logic of the game. It consists of two things: initialization and game loop.</p>
+
+    <p>Let us first see the initialization:</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">var canvas = document.getElementsByTagName("canvas")[0];
+var width = canvas.width;
+var height = canvas.height;
+var ctx = canvas.getContext("2d");
+
+var snake = new Snake(5, 5, 5);
+var food = new Food(width, height);
+var score = 0;
+
+var scoreDiv = document.getElementById("score");
+scoreDiv.style.fontWeight = "bold";
+scoreDiv.innerHTML = "Score: " + score;
+
+window.onkeydown = function (ev) {
+    switch (ev.keyCode) {
+        case 37:
+            snake.turnLeft();
+            break;
+        case 38:
+            snake.turnUp();
+            break;
+        case 39:
+            snake.turnRight();
+            break;
+        case 40:
+            snake.turnDown();
+            break;
+    }
+}</code></pre>
+
+    <p>First we take the canvas element and get it's width, height and 2D context.</p>
+
+    <p>Next we initialize our snake. The tail is on coordinates (5, 5) and the length of the snake is 5.<br>
+    Then we generate our food in a field large enough to fit in the canvas.<br>
+    We also initialize a score. The score is displayed in a div with id=&ldquo;score&rdquo;.</p>
+
+    <p>Next thing we need is to navigate the snake. That's accomplished by adding events to the window. The event object has a property called keyCode. When we press a key, that keyCode contains the code of the pressed key. The left, up, right and down arrows codes are 37, 38, 39 and 40.</p>
+
+    <hr>
+
+    <p>The next import thing is the game loop.</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">function run(ctx, snake, width, height) {
+    var nextHead = snake.getNextHead();
+    var snakeBody = snake.snakeBody;
+
+    // check for collision with itself
+    for (var i = 0; i &lt; snakeBody.length(); i++) {
+        var elem = snakeBody.elementAt(i);
+        if (elem.x === nextHead.x &amp;&amp; elem.y === nextHead.y) {
+            saveScore(score);
+            restartGame();
+        }
+    }
+
+    // check for collision with side walls
+    if (nextHead.x &lt;= 0 ||
+            nextHead.x &gt;= width - 10 ||
+            nextHead.y &lt;= 0 ||
+            nextHead.y &gt;= height - 10) {
+        saveScore(score);
+        restartGame();
+    }
+
+    // check for collision with food
+    for (var i = 0; i &lt; snakeBody.length() ; i++) {
+        var elem = snakeBody.elementAt(i);
+        if (elem.x === food.coords.x &amp;&amp; elem.y === food.coords.y) {
+            var snakeNextHead = snake.getNextHead();
+            snake.snakeBody.enqueue(snakeNextHead);
+            snake.head = snakeNextHead;
+            food = new Food(width, height);
+            score += 100;
+            scoreDiv.innerHTML = "Score: " + score;
+            break;
+        }
+    }
+
+    snake.move();
+    drawField(ctx, width, height);
+    drawFood(ctx, food);
+    drawSnake(ctx, snake);
+}</code></pre>
+
+    <p>This is the function that we want to be executed on every iteration of the game loop. We take the snake's head and body and check for collisions (with itself, with side walls(border) and with food).<br>
+    The collisions with itself are easy (if the snake's nextHead equals some of the snake's body coordinates, then the snake hit itself). Don't mind the &ldquo;saveScore&rdquo; and &ldquo;restartGame&rdquo; functions, I will explain them later.<br>
+    The collisions with the border are easy too (if the snake's nextHead equals one of the side walls coordinates, then the snake hit the border).<br>
+    The collisions with the food are trickier. Imagine that a food is generate on the top of the snake. The snake can't eat it because it will eat itself too. That's why I made it like that (if any of the coordinates of the snake's body equals the food's coordinates, then the food is eaten). Unfortunately sometimes you will get points just because the food was spawned on the top of the snake. Anyway, when we the snake eats a food, we increase the score by 100, generate a new food and of course we expand the snake. The expanding is just like the moving function, we just don't remove the end of the tail.<br>
+    When all of the collisions were dispatched we can finally call the snake's move() method and draw a frame.</p>
+
+    <p>Now we have to put that function into an infinite loop. Infinite loops don't work in JavaScript, but we have a very nice function for that &ldquo;setInterval(func, milliseconds)&rdquo;. setInterval calls &ldquo;func&rdquo; every N milliseconds.</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">function gameLoop() {
+    run(ctx, snake, width, height);
+}
+
+setInterval(gameLoop, 100);</code></pre>
+
+    <hr>
+
+    <p>We are almost ready. If you don't want to know how the score system is implemented you can just skip this part. But hey, what's a game without a score system?</p>
+
+    <p>First let me show you the restartGame() function.</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">function restartGame() {
+    document.location.reload(false);
+}</code></pre>
+
+    <p>Very simple. The page is reloaded.</p>
+
+    <p>And here is the saveScore(score) function</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">function saveScore(score) {
+    var name = prompt("GAME OVER!\nEnter nickname:");
+    if (localStorage[name]) {
+        if (localStorage[name] &lt; score) {
+            localStorage[name] = score;
+        }
+    }
+    else {
+        localStorage[name] = score;
+    }
+}</code></pre>
+
+    <p>When the game is over the player is asked for a nickname and a key-&gt;value pair (name-&gt;score) is saved in the localStorage of the browser. It's not the most elegant mechanism, but I wanted to make it as simple as possible. As fast as possible too of course :D. The tricky part is that we need to ask if the played has already signed his name and score. That way if you play and score 100, and on the second play your score is 500, there wont be two scores with a same nickname, your score will just be updated.</p>
+
+    <hr>
+
+    <p>How do we display the rank list in the browser?<br>
+    Well, that's how!</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">(function loadTopFiveScores() {
+    function Pair(key, value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    var allScores = [];
+    for (var prop in localStorage) {
+        allScores.push(new Pair(prop, localStorage[prop]));
+    }
+
+    // sort the scores
+    for (var i = 0; i &lt; allScores.length - 1; i++) {
+        var maxScoreIndex = i;
+        for (var j = i + 1; j &lt; allScores.length; j++) {
+            if (parseInt(allScores[j].value) &gt; parseInt(allScores[maxScoreIndex].value)) {
+                maxScoreIndex = j;
+            }
+        }
+
+        var temp = allScores[i];
+        allScores[i] = allScores[maxScoreIndex];
+        allScores[maxScoreIndex] = temp;
+    }
+
+    // load the top five scores
+    var rankList = document.getElementById("rank-list");
+    var length;
+    if (allScores.length &lt; 5) {
+        length = allScores.length;
+    }
+    else {
+        length = 5;
+    }
+
+    for (var i = 0; i &lt; length; i++) {
+        var div = document.createElement("div");
+        div.innerHTML = allScores[i].key + ": " + allScores[i].value;
+        rankList.appendChild(div);
+    }
+})();</code></pre>
+
+    <p>Looks frightening, but it's not. First we make a Pair class (a key-&gt;value pair). Then we save all of the key-&gt;value pairs in an array called allScore. We sort the scores by value (with simple selection sort algorithm). We also want to display only the top five scores. Well the scores are sorted so we need to take only the last five. For every score we make a div element and append it to the div with id=&ldquo;rank-list&rdquo;. If you want to optimize the appending process, you can do it with documentFragment.</p>
+
+    <hr>
+
+    <p>I've also made a button for clearing the localStorage.</p>
+
+<pre class="code-block-post" data-lang="JS"><code class="language-javascript">var storageCleanerButton = document.getElementById("storage-clear");
+storageCleanerButton.addEventListener("click", clearScore, false);
+
+function clearScore() {
+    localStorage.clear();
+    var rankList = document.getElementById("rank-list");
+    rankList.innerHTML = "Top Five";
+}</code></pre>
+
+    <p>Congratulations, you've reached the end of this huge post :D</p>
+  </div>
+</article>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <p class="comment">// <a href="https://github.com/dbrizov/dbrizov.github.io" target="_blank" rel="noopener">view source</a></p>
+    <div class="footer-links">
+      <a href="../../../index.html">home</a>
+    </div>
+  </div>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+</body>
+</html>
