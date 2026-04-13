@@ -22,3 +22,17 @@
 
   sections.forEach(s => observer.observe(s));
 })();
+
+(function () {
+  const el = document.getElementById('na-stars');
+  if (!el) return;
+  const countEl = el.querySelector('.tag-stars-count');
+  if (!countEl) return;
+
+  const format = n => n < 1000 ? String(n) : (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+
+  fetch('https://api.github.com/repos/dbrizov/NaughtyAttributes')
+    .then(r => r.ok ? r.json() : null)
+    .then(d => { if (d && typeof d.stargazers_count === 'number') countEl.textContent = format(d.stargazers_count); })
+    .catch(() => {});
+})();
