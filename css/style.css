@@ -580,8 +580,15 @@ a:focus-visible,
   font-family: var(--font-mono);
   font-size: 17px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--accent);
   margin: 28px 0 12px;
+}
+.post-content h4 {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+  margin: 24px 0 10px;
 }
 .post-content a { color: var(--accent-2); }
 .post-content a:hover { color: var(--accent); }

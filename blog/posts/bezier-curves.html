@@ -79,7 +79,7 @@
           In order to construct the function we are going to go through some steps. In each step we are going to make
           some lerps, and at the end we will combine these lerps.</p>
 
-        <h4>Step One</h4>
+        <h3>Step One</h3>
 
         <p>We are going to make 3 lerps &mdash; between <strong>p0</strong> and <strong>p1</strong>, between
           <strong>p1</strong> and <strong>p2</strong>, and between <strong>p2</strong> and <strong>p3</strong>.</p>
@@ -97,7 +97,7 @@ Vector3 c = Lerp(p2, p3, t);</code></pre>
 
         <img src="../images/bezier-curves/lerp1-lines.gif" alt="Lerp One Plus Lines">
 
-        <h4>Step Two</h4>
+        <h3>Step Two</h3>
 
         <p>Again we are going to make some lerps &mdash; this time between <strong>a</strong> and <strong>b</strong>,
           and between <strong>b</strong> and <strong>c</strong>.</p>
@@ -111,7 +111,7 @@ Vector3 e = Lerp(b, c, t);</code></pre>
 
         <img src="../images/bezier-curves/lerp2-lines.gif" alt="Lerp Two Plus Lines">
 
-        <h4>Step Three</h4>
+        <h3>Step Three</h3>
 
         <p>Now all we need to do is to make one last lerp between <strong>d</strong> and <strong>e</strong>, so we can
           find the point on the curve at any given time <strong>t</strong>.</p>
@@ -127,7 +127,7 @@ Vector3 e = Lerp(b, c, t);</code></pre>
 
         <img src="../images/bezier-curves/lerp3-curve.gif" alt="Draw Curve">
 
-        <h4>The Function</h4>
+        <h3>The Function</h3>
 
         <p>Now if we combine all these lerps, we get the final function that defines any bezier curve by 4 points and a
           <strong>t</strong> value.</p>
