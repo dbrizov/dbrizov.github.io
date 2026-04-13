@@ -1,49 +1,64 @@
 // Highlight the active section in the top nav as the user scrolls.
 (function () {
-  const links = document.querySelectorAll('.nav-links a[href^="#"]');
-  const sections = Array.from(links)
+  const links = Array.from(document.querySelectorAll('.nav-links a[href^="#"]'));
+  const sections = links
     .map(a => document.querySelector(a.getAttribute('href')))
     .filter(Boolean);
 
-  if (!('IntersectionObserver' in window) || sections.length === 0) return;
+  if (sections.length === 0) return;
 
   const linkFor = id => document.querySelector('.nav-links a[href="#' + id + '"]');
+  const nav = document.querySelector('.topnav');
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      const link = linkFor(entry.target.id);
-      if (!link) return;
-      if (entry.isIntersecting) {
-        links.forEach(l => l.classList.remove('is-active'));
-        link.classList.add('is-active');
+  const update = () => {
+    const threshold = (nav ? nav.getBoundingClientRect().height : 0) + 16;
+    let activeId = sections[0].id;
+    for (const s of sections) {
+      if (s.getBoundingClientRect().top - threshold <= 0) {
+        activeId = s.id;
+      } else {
+        break;
       }
-    });
-  }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+    }
+    const activeLink = linkFor(activeId);
+    if (!activeLink || activeLink.classList.contains('is-active')) return;
+    links.forEach(l => l.classList.remove('is-active'));
+    activeLink.classList.add('is-active');
+  };
 
-  sections.forEach(s => observer.observe(s));
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { update(); ticking = false; });
+  };
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  update();
 })();
 
 // Populate GitHub stars for each repo.
-function populateRepoStars(starsElementId, repoUrl) {
-  const starsElement = document.getElementById(starsElementId);
-  if (!starsElement) {
-    return;
-  }
-
-  const countElement = starsElement.querySelector('.tag-stars-count');
-  if (!countElement) {
-    return;
-  }
-
-  const format = n => n < 1000 ? String(n) : (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
-
-  fetch(repoUrl)
-    .then(r => r.ok ? r.json() : null)
-    .then(d => { if (d && typeof d.stargazers_count === 'number') countElement.textContent = format(d.stargazers_count); })
-    .catch(() => { });
-}
-
 (function () {
+  function populateRepoStars(starsElementId, repoUrl) {
+    const starsElement = document.getElementById(starsElementId);
+    if (!starsElement) {
+      return;
+    }
+
+    const countElement = starsElement.querySelector('.tag-stars-count');
+    if (!countElement) {
+      return;
+    }
+
+    const format = n => n < 1000 ? String(n) : (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+
+    fetch(repoUrl)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d && typeof d.stargazers_count === 'number') countElement.textContent = format(d.stargazers_count); })
+      .catch(() => { });
+  }
+
   populateRepoStars("naughty-attributes-stars", "https://api.github.com/repos/dbrizov/NaughtyAttributes");
   populateRepoStars("character-controller-stars", "https://api.github.com/repos/dbrizov/Unity-CharacterController");
   populateRepoStars("bezier-curves-stars", "https://api.github.com/repos/dbrizov/Unity-BezierCurves");
