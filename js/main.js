@@ -23,16 +23,29 @@
   sections.forEach(s => observer.observe(s));
 })();
 
-(function () {
-  const el = document.getElementById('na-stars');
-  if (!el) return;
-  const countEl = el.querySelector('.tag-stars-count');
-  if (!countEl) return;
+// Populate GitHub stars for each repo.
+function populateRepoStars(starsElementId, repoUrl) {
+  const starsElement = document.getElementById(starsElementId);
+  if (!starsElement) {
+    return;
+  }
+
+  const countElement = starsElement.querySelector('.tag-stars-count');
+  if (!countElement) {
+    return;
+  }
 
   const format = n => n < 1000 ? String(n) : (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
 
-  fetch('https://api.github.com/repos/dbrizov/NaughtyAttributes')
+  fetch(repoUrl)
     .then(r => r.ok ? r.json() : null)
-    .then(d => { if (d && typeof d.stargazers_count === 'number') countEl.textContent = format(d.stargazers_count); })
-    .catch(() => {});
+    .then(d => { if (d && typeof d.stargazers_count === 'number') countElement.textContent = format(d.stargazers_count); })
+    .catch(() => { });
+}
+
+(function () {
+  populateRepoStars("naughty-attributes-stars", "https://api.github.com/repos/dbrizov/NaughtyAttributes");
+  populateRepoStars("character-controller-stars", "https://api.github.com/repos/dbrizov/Unity-CharacterController");
+  populateRepoStars("bezier-curves-stars", "https://api.github.com/repos/dbrizov/Unity-BezierCurves");
+  populateRepoStars("water-bouyancy-stars", "https://api.github.com/repos/dbrizov/Unity-WaterBuoyancy");
 })();
