@@ -114,16 +114,33 @@
           <a href="https://hob2d.com" target="_blank" rel="noopener">
             <div class="card-media card-media--logo">
               <span class="logo-glow" aria-hidden="true"></span>
-              <svg class="logo-mark" viewBox="0 0 64 64" role="img" aria-label="Hob2D">
-                <defs>
-                  <linearGradient id="hob2d-grad" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stop-color="#fbbf24" />
-                    <stop offset="1" stop-color="#f59e0b" />
-                  </linearGradient>
-                </defs>
-                <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#hob2d-grad)" />
-                <path d="M20 16h7v13h10V16h7v32h-7V35H27v13h-7z" fill="#0d0f12" />
+              <div class="scene-physics" aria-hidden="true">
+                <span class="scene-ball"></span>
+                <span class="scene-floor"></span>
+              </div>
+              <svg class="scene-gizmo" viewBox="0 0 28 28" aria-hidden="true">
+                <line x1="4" y1="24" x2="25" y2="24" stroke="#ff5d5d" stroke-width="2" stroke-linecap="round" />
+                <polygon points="24,21 24,27 28,24" fill="#ff5d5d" />
+                <line x1="4" y1="24" x2="4" y2="3" stroke="#7ee787" stroke-width="2" stroke-linecap="round" />
+                <polygon points="1,4 7,4 4,0" fill="#7ee787" />
+                <circle cx="4" cy="24" r="2" fill="#e6edf3" />
               </svg>
+              <div class="logo-lockup">
+                <div class="scene-entity">
+                  <span class="selection-box" aria-hidden="true"></span>
+                  <svg class="logo-mark" viewBox="0 0 64 64" role="img" aria-label="Hob2D">
+                    <defs>
+                      <linearGradient id="hob2d-grad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#fbbf24" />
+                        <stop offset="1" stop-color="#f59e0b" />
+                      </linearGradient>
+                    </defs>
+                    <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#hob2d-grad)" />
+                    <path d="M20 16h7v13h10V16h7v32h-7V35H27v13h-7z" fill="#0d0f12" />
+                  </svg>
+                </div>
+                <span class="logo-tagline">// a hobby 2D game engine<span class="caret"></span></span>
+              </div>
             </div>
             <div class="card-body">
               <h3>Hob2D</h3>

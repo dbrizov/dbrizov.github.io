@@ -391,19 +391,93 @@ main {
   filter: blur(8px);
   animation: logoPulse 3.4s ease-in-out infinite;
 }
-.card-media--logo .logo-mark {
+.card-media--logo .logo-lockup {
   position: relative;
-  width: 40%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+.card-media--logo .scene-entity {
+  position: relative;
+  width: 34%;
+}
+.card-media--logo .logo-mark {
+  display: block;
+  width: 100%;
   height: auto;
   filter: drop-shadow(0 6px 16px rgba(245, 158, 11, .35));
-  animation: logoFloat 4.2s ease-in-out infinite;
+}
+/* Editor selection box (marching ants) + corner handles around the "entity" */
+.card-media--logo .selection-box {
+  position: absolute;
+  inset: -9px;
+  background:
+    linear-gradient(90deg, rgba(126, 231, 135, .9) 50%, transparent 0) 0 0 / 12px 1px repeat-x,
+    linear-gradient(90deg, rgba(126, 231, 135, .9) 50%, transparent 0) 0 100% / 12px 1px repeat-x,
+    linear-gradient(0deg, rgba(126, 231, 135, .9) 50%, transparent 0) 0 0 / 1px 12px repeat-y,
+    linear-gradient(0deg, rgba(126, 231, 135, .9) 50%, transparent 0) 100% 0 / 1px 12px repeat-y;
+  animation: marchingAnts 1.8s linear infinite;
+}
+.card-media--logo .selection-box::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background:
+    linear-gradient(#7ee787, #7ee787) 0 0 / 8px 8px no-repeat,
+    linear-gradient(#7ee787, #7ee787) 100% 0 / 8px 8px no-repeat,
+    linear-gradient(#7ee787, #7ee787) 0 100% / 8px 8px no-repeat,
+    linear-gradient(#7ee787, #7ee787) 100% 100% / 8px 8px no-repeat;
+}
+/* Coordinate gizmo (Y-up), bottom-left — static editor chrome */
+.card-media--logo .scene-gizmo {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  width: 52px;
+  height: 52px;
+  opacity: .9;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .5));
+}
+/* Physics ball bouncing on a floor line, upper-right empty space */
+.card-media--logo .scene-physics {
+  position: absolute;
+  top: 22%;
+  right: 12%;
+  width: 44px;
+  height: 56px;
+}
+.card-media--logo .scene-floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(88, 166, 255, .55), transparent);
+}
+.card-media--logo .scene-ball {
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  width: 18px;
+  height: 18px;
+  margin-left: -9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #58a6ff 72%);
+  transform-origin: 50% 100%;
+  animation: ballBounce 2.4s infinite;
+}
+.card-media--logo .logo-tagline {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--comment);
+  letter-spacing: .01em;
+  white-space: nowrap;
 }
 .card:hover .card-media--logo .logo-mark {
   filter: drop-shadow(0 10px 24px rgba(245, 158, 11, .6));
-}
-@keyframes logoFloat {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50%      { transform: translateY(-6px) rotate(-2deg); }
 }
 @keyframes logoPulse {
   0%, 100% { opacity: .4; transform: scale(.9); }
@@ -413,10 +487,26 @@ main {
   from { background-position: 0 0, 0 0; }
   to   { background-position: 22px 22px, 22px 22px; }
 }
+@keyframes marchingAnts {
+  to { background-position: 12px 0, -12px 100%, 0 -12px, 100% 12px; }
+}
+@keyframes ballBounce {
+  0%   { transform: translateY(-38px) scaleY(1);     animation-timing-function: cubic-bezier(.5, 0, 1, .55); }
+  18%  { transform: translateY(0) scale(1.28, .72);  animation-timing-function: ease-out; }
+  22%  { transform: translateY(0) scale(.86, 1.14);  animation-timing-function: cubic-bezier(0, .4, .5, 1); }
+  40%  { transform: translateY(-22px) scale(1);      animation-timing-function: cubic-bezier(.5, 0, 1, .55); }
+  54%  { transform: translateY(0) scale(1.2, .8);    animation-timing-function: ease-out; }
+  58%  { transform: translateY(0) scale(.9, 1.1);    animation-timing-function: cubic-bezier(0, .4, .5, 1); }
+  70%  { transform: translateY(-9px) scale(1);       animation-timing-function: cubic-bezier(.5, 0, 1, .55); }
+  80%  { transform: translateY(0) scale(1.12, .88);  animation-timing-function: ease-out; }
+  84%  { transform: translateY(0) scale(1); }
+  100% { transform: translateY(0) scale(1); }
+}
 @media (prefers-reduced-motion: reduce) {
   .card-media--logo::before,
   .card-media--logo .logo-glow,
-  .card-media--logo .logo-mark { animation: none; }
+  .card-media--logo .selection-box,
+  .card-media--logo .scene-ball { animation: none; }
 }
 .card-body {
   padding: 14px 16px 16px;
