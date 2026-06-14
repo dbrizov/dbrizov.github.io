@@ -361,6 +361,63 @@ main {
 .card:hover .card-media img {
   transform: scale(1.03);
 }
+/* Animated inline-SVG logo tile (used in place of a gif on the Hob2D card) */
+.card-media--logo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(120% 120% at 50% 35%, #1b2330 0%, #0a0d12 72%);
+  overflow: hidden;
+}
+.card-media--logo::before {
+  content: '';
+  position: absolute;
+  inset: -12%;
+  background-image:
+    linear-gradient(rgba(245, 158, 11, .08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 158, 11, .08) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 78%);
+  animation: logoGridPan 7s linear infinite;
+  pointer-events: none;
+}
+.card-media--logo .logo-glow {
+  position: absolute;
+  width: 60%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 158, 11, .5), rgba(245, 158, 11, 0) 70%);
+  filter: blur(8px);
+  animation: logoPulse 3.4s ease-in-out infinite;
+}
+.card-media--logo .logo-mark {
+  position: relative;
+  width: 40%;
+  height: auto;
+  filter: drop-shadow(0 6px 16px rgba(245, 158, 11, .35));
+  animation: logoFloat 4.2s ease-in-out infinite;
+}
+.card:hover .card-media--logo .logo-mark {
+  filter: drop-shadow(0 10px 24px rgba(245, 158, 11, .6));
+}
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-6px) rotate(-2deg); }
+}
+@keyframes logoPulse {
+  0%, 100% { opacity: .4; transform: scale(.9); }
+  50%      { opacity: .8; transform: scale(1.08); }
+}
+@keyframes logoGridPan {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 22px 22px, 22px 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-media--logo::before,
+  .card-media--logo .logo-glow,
+  .card-media--logo .logo-mark { animation: none; }
+}
 .card-body {
   padding: 14px 16px 16px;
 }
