@@ -20,23 +20,37 @@
     /* The native file input renders its own "Choose File" button whose text the
        browser owns, so it is hidden and a styled label drives it instead. */
     #rom { display: none; }
-    label[for="rom"] {
+    .controls { display: flex; align-items: center; gap: 0.75rem; }
+    /* Transparent border on the base so the solid and outlined variants keep
+       identical box sizes and line up. */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
       padding: 0.5rem 1rem;
-      border: none;
+      border: 1px solid transparent;
       border-radius: 4px;
-      background: #9bbc0f;
-      color: #0f380f;
+      font: inherit;
       font-weight: bold;
+      text-decoration: none;
       cursor: pointer;
       user-select: none;
     }
-    label[for="rom"]:hover { background: #8bac0f; }
+    .btn svg { width: 1em; height: 1em; fill: currentColor; }
+    .btn-primary { background: #9bbc0f; color: #0f380f; }
+    .btn-primary:hover { background: #8bac0f; }
+    .btn-secondary { background: transparent; border-color: #3a3f45; color: #ddd; }
+    .btn-secondary:hover { background: #24282d; border-color: #545b63; }
   </style>
 <link rel="modulepreload" href="/games/ferroboy/ferroboy_web-931e0d944e6f2102.js" crossorigin="anonymous" integrity="sha384-M5VIlU3+K5i/gd90tWLsV/4a2FlzNSs9tm3x0d6QfXNOIjamK9RpJaYcmK7Y1fw9"><link rel="preload" href="/games/ferroboy/ferroboy_web-931e0d944e6f2102_bg.wasm" crossorigin="anonymous" integrity="sha384-tqs0a55Y0RrnQ/XWKnQp3Frv0LgcSYNp5zqaI7dVgF5WOG2QcceJm9ZvXtcsFCnd" as="fetch" type="application/wasm"></head>
 <body>
   <div id="screen"></div>
   <input type="file" id="rom" accept=".gb,.gbc">
-  <label for="rom">Load ROM</label>
+  <div class="controls">
+    <label for="rom" class="btn btn-primary">Load ROM</label>
+    <a class="btn btn-secondary" href="https://github.com/dbrizov/ferroboy" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
+  </div>
   
 <script type="module">
 import init, * as bindings from '/games/ferroboy/ferroboy_web-931e0d944e6f2102.js';
