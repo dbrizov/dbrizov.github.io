@@ -42,7 +42,7 @@
     .btn-secondary { background: transparent; border-color: #3a3f45; color: #ddd; }
     .btn-secondary:hover { background: #24282d; border-color: #545b63; }
   </style>
-<link rel="modulepreload" href="/games/ferroboy/ferroboy_web-931e0d944e6f2102.js" crossorigin="anonymous" integrity="sha384-M5VIlU3+K5i/gd90tWLsV/4a2FlzNSs9tm3x0d6QfXNOIjamK9RpJaYcmK7Y1fw9"><link rel="preload" href="/games/ferroboy/ferroboy_web-931e0d944e6f2102_bg.wasm" crossorigin="anonymous" integrity="sha384-tqs0a55Y0RrnQ/XWKnQp3Frv0LgcSYNp5zqaI7dVgF5WOG2QcceJm9ZvXtcsFCnd" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="/games/ferroboy/ferroboy_web-f21ac5acac6e8207.js" crossorigin="anonymous" integrity="sha384-BV+pnHjjy/J+q0g7/IQ4LuNgUPX4EUZQj+Uc7KHoeo5ZoEL5wYoKmiR+Cv1ngVMQ"><link rel="preload" href="/games/ferroboy/ferroboy_web-f21ac5acac6e8207_bg.wasm" crossorigin="anonymous" integrity="sha384-Y36fO0hu7nLVXa9drgzMomckBPX89ODGzSldX0o2XeCqRcCfLMLzt8KnyvMXVypW" as="fetch" type="application/wasm"></head>
 <body>
   <div id="screen"></div>
   <input type="file" id="rom" accept=".gb,.gbc">
@@ -53,8 +53,8 @@
   </div>
   
 <script type="module">
-import init, * as bindings from '/games/ferroboy/ferroboy_web-931e0d944e6f2102.js';
-const wasm = await init({ module_or_path: '/games/ferroboy/ferroboy_web-931e0d944e6f2102_bg.wasm' });
+import init, * as bindings from '/games/ferroboy/ferroboy_web-f21ac5acac6e8207.js';
+const wasm = await init({ module_or_path: '/games/ferroboy/ferroboy_web-f21ac5acac6e8207_bg.wasm' });
 
 
 window.wasmBindings = bindings;
